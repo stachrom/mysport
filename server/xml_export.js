@@ -146,7 +146,7 @@ Meteor.setInterval( function() {
         hours = d.getHours();
 
     // ab 23 Uhr findet der Export statt
-    if (hours === 12 ){
+    if (hours === 23 ){
 
         for( var i = 0; i < users.length; i++){
 
@@ -161,7 +161,7 @@ Meteor.setInterval( function() {
   }else{
      console.log("export: "+ hours+":"+minutes );
   }
-}, 60*1000);
+}, 60*60*1000);
 
 
 
