@@ -1,16 +1,16 @@
 {
   "dependencies": {
     "xml2js": {
-      "version": "0.4.4",
+      "version": "0.4.6",
       "dependencies": {
         "sax": {
-          "version": "0.6.0"
+          "version": "0.6.1"
         },
         "xmlbuilder": {
-          "version": "2.4.4",
+          "version": "2.6.2",
           "dependencies": {
-            "lodash-node": {
-              "version": "2.4.1"
+            "lodash": {
+              "version": "3.5.0"
             }
           }
         }

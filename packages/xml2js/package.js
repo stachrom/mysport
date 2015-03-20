@@ -1,9 +1,9 @@
 Package.describe({
   summary: "Simple XML to JavaScript object converter",
-  version: "0.4.4",
+  version: "0.4.6",
 });
 
-Npm.depends({xml2js: "0.4.4"});
+Npm.depends({xml2js: "0.4.6"});
 
 Package.on_use(function (api) {
   if (api.export) // ensure backwards compatibility with Meteor pre-0.6.5
