@@ -1,0 +1,239 @@
+<template name="Kurs">
+<article class="well" itemscope itemtype="http://schema.org/Event" >
+
+
+<div class="row">
+   <div class="col-xs-6"><a href="javascript:history.back() ">zur Übersicht</a></div>
+   <div class="col-xs-6"><p class="text-right">erstellt am {{dateFormat Created format="dddd - DD.MMMM YYYY"}}</p></div>
+</div>
+
+<div class="row">
+   <div class="col-xs-12">
+      {{#with Beschreibung}}
+      <h1>{{B1}}</h1>
+      {{/with}}
+   </div>
+</div>
+
+
+<div class="row">
+  <div class="col-xs-12 col-sm-3 col-md-3"> 
+     <h2> Kurs Nr.</h2> 
+     <p>{{Kursnummer}}</p>
+    {{> kursLeitung}}
+    {{> kursLocation}}
+  </div>
+  <div class="col-xs-12 col-sm-9 col-md-6">    
+         <h2> Beschreibung</h2>
+
+            {{#with Beschreibung}}
+                <p>{{B2}}</p>
+                <p>{{B3}}</p>
+                {{#with Lehrmittel}}
+                    <p>{{L1}}</p>
+                    <p>{{L2}}</p>
+                {{/with}}
+
+                 {{#with Bemerkungen}}
+                    <p>{{B1}}</p>
+                     <p>{{B2}}</p>
+                {{/with}}
+            {{/with}}
+  </div>
+  <div class="col-xs-12 col-md-3">
+ <h2>Daten</h2>
+            {{#with Kursdaten}}
+                
+             <meta itemprop="startDate" content="{{dateFormat Start format="YYYY-MM-DDTHH:mm"}}">
+            {{> kursDaten}}                
+            <div id="calendar_embeded"> </div>
+            {{/with}}
+</div>
+</div>
+
+<div class="row">
+  <div class="col-xs-12 col-sm-6 col-md-3">  
+  <h2> Teilnehmer</h2>
+            {{#with Teilnehmer}}
+                    <dl>
+                        <dt>Max</dt>
+                        <dd>{{Max}} Teilnehmer</dd>
+
+                        <dt>Min</dt>
+                        <dd>{{Min}} Teilnehmer </dd>
+
+                       {{#with  Anzahl}}
+                        {{#if Display}}
+                        <dt>Angemeldete Teilnehmer:</dt>
+                                <dd>{{Angemeldet}} Personen</dd>
+                                {{/if }}
+                        {{/with}}
+                     </dl>
+            {{/with}}
+  </div>
+  <div class="col-xs-12 col-sm-6 col-md-6">
+<h2>Level</h2>
+{{#with Level}}
+<p>ist geeignet für: </p>
+   <ul>     
+      {{#if Anfaenger}}<li>Anfänger</li>  {{/if}}
+      {{#if Einsteiger}}<li>Einsteiger </li> {{/if}}
+      {{#if Mittlere}}<li> Mittlere </li> {{/if}}
+      {{#if Fortgeschrittene}}<li>Fortgeschrittene </li> {{/if}}           
+   </ul>
+ {{/with}}
+</div>
+  <div class="col-xs-12 col-sm-6 col-md-3">
+   <h2>Preise</h2>
+            {{#with Preise}}
+               <div class="radio radio-primary">
+                  {{#with Abo}}
+                     {{#if Beschreibung}}
+                        <label>
+                        {{Beschreibung}}
+                        <input type="radio" name="preis" value="{{CHF}}">
+                        <span class=ripple></span>
+                        <span class=circle></span>
+                        <span class=check></span>                        
+                        {{CHF}} sfr.-
+                        </label>
+                       {{/if}}
+                     {{/with}}
+
+                     {{#with Athlet}}
+                        {{#if Beschreibung}}
+                        <label>
+                        {{Beschreibung}}
+                        <input type="radio" name="preis" value="{{CHF}}">
+                        <span class=ripple></span>
+                        <span class=circle></span>
+                        <span class=check></span>
+                        {{CHF}} sfr.-
+                        </label>
+
+                        {{/if}}
+                     {{/with}}
+
+                     {{#with Pauschal}}
+                        {{#if Beschreibung}}
+                        <label>
+                        {{Beschreibung}}
+                        <input type="radio" name="preis" value="{{CHF}}">
+                        <span class=ripple></span>
+                        <span class=circle></span>
+                        <span class=check></span>                        
+                        {{CHF}} sfr.-
+                        </label>
+
+                        {{/if}}
+                     {{/with}}
+
+                     {{#with Res1}}
+                        {{#if Beschreibung}}
+                        <label>
+                        {{Beschreibung}}
+                        <input type="radio" name="preis" value="{{CHF}}">
+                        <span class=ripple></span>
+                        <span class=circle></span>                        
+                        <span class=check></span>                        
+                        {{CHF}} sfr.-
+                        </label>
+
+                        {{/if}}
+                     {{/with}}
+
+                     {{#with Res2}}
+                        {{#if Beschreibung}}
+                        <label>
+                        {{Beschreibung}}
+                        <input type="radio" name="preis" value="{{CHF}}">
+                        <span class=ripple></span>
+                        <span class=circle></span>
+                        <span class=check></span>                        
+                        {{CHF}} sfr.-
+                        </label>
+                        {{/if}}
+                      {{/with}}
+                     </div>
+            {{/with}}
+</div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+     {{#if currentUser}}
+        <p class="text-right">                                      
+        <button class="btn btn-primary btn-fab btn-raised mdi-navigation-check"></button>
+        </p>
+     {{else}}
+        <p class="text-right">
+           Um einen Kurs zu buchen, melden sich sich am System an. 
+         <br>
+          <ul class="nav nav-pills navbar-right">        
+         {{> accountButtons}}
+         </ul>
+        </p>
+     {{/if}}
+</div>
+</div>
+
+</article>
+
+</template>
+
+
+
+<template name="kursConfirmationModal">
+
+<div class="modal fade" id="kursConfirmation" tabindex="-1" role="dialog" aria-labelledby="kursConfirmationLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="kursConfirmationLabel">
+        Kursnummer {{Kursnummer}} - 
+        {{#with Beschreibung}}
+            {{B1}}
+        {{/with}}
+        </h4>
+      </div>
+      <div class="modal-body">
+        {{#with Kursdaten}}
+           {{> kursDaten}}
+        {{/with}}
+        Preis: {{preis}}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+        <button type="button" class="btn btn-primary" id="purchaseCourse">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+</template>
+
+<template name="kursLeitung">
+
+   <h2>Kursleitung</h2>
+   {{kursleiter.Name}}
+   {{kursleiter.Vorname}}
+
+</template>
+
+<template name="kursLocation">
+
+   <h2>Kurs Ort</h2>
+   {{location.Name}}<br>
+   {{location.Strasse}}<br>
+   {{location.Plz}} {{location.Ortschaft}} 
+
+</template>
+
+<template name="kursDaten">
+
+       {{dateFormat Start format="DD.MM"}} - {{dateFormat Stop format="DD.MM.YYYY"}}<br>
+       {{dateFormat Start format="dddd HH:mm"}} – {{dateFormat Stop format="HH:mm"}} Uhr<br>
+       {{#if Dauer}} Dauer: {{Dauer}} h <br> {{/if}}
+       Findet {{Daten.length}} x statt<br>
+
+</template>

@@ -1,0 +1,62 @@
+
+<template name="kursTabelle">
+    <h1>Das Kursangebot</h1>
+   {{> filter}}
+    <table class="table table-striped" >
+        {{> tableheader}}
+        {{> tablebody}}
+     </table>
+</template>
+
+<template name="filter">
+    <section>
+     <div class="btn-group btn-group-justified" data-toggle="buttons">
+  	<label class="btn btn-primary">
+    		<input type="radio" name="options" id="schwimmen" value="Schwimmen" > Schwimmen
+  	</label>
+  	<label class="btn btn-primary">
+    		<input type="radio" name="options" id="laufen" value="Laufen"> Laufen
+  	</label>
+  	<label class="btn btn-primary">
+    		<input type="radio" name="options" id="rafahren" value="Velo">Radfahren
+  	</label>
+        <label class="btn btn-primary">
+                <input type="radio" name="options" id="kraft" value="Kraft">Kraft
+        </label>
+        <label class="btn btn-primary">
+                <input type="radio" name="options" id="diverses" value="Divers">Diverses
+        </label>
+        <label class="btn btn-primary">
+                <input type="radio" name="options" id="alle" value="">Alle Anzeigen
+        </label>
+     </div>
+    </section>
+</template>
+
+<template name="tableheader">
+    <thead>
+        <tr>
+            <th data-sort="Titel" class="sort">Titel</th>            
+            <th data-sort="Art" class="sort">Bezeichnung</th>
+            <th >Type</th>
+            <th data-sort="Zeit" class="sort" >Start</th>
+            <th data-sort="Dauer" class="sort" >Dauer (h)</th>
+            <th data-sort="Daten" class="sort" >Datum</th>
+        </tr>
+    </thead>
+</template>
+
+<template name="tablebody">
+    <tbody>    
+      {{#each this}}
+        <tr class="link" >
+            <td>{{Titel}}</td>            
+            <td>{{Art}}</td>
+            <td>{{Tag}}</td>
+            <td>{{Zeit}}</td>
+            <td>{{Dauer}} </td>
+            <td>{{dateFormat Daten format="dddd - DD.MMMM.YYYY"}}</td>
+        </tr>
+      {{/each}}      
+    </tbody>
+</template>

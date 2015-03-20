@@ -1,0 +1,35 @@
+
+<template name="kursIframe">
+    <table class="table table-striped" >
+        {{> tableHeaderIframe}}
+        {{> tableBodyIframe}}
+     </table>
+</template>
+
+<template name="tableHeaderIframe">
+    <thead>
+        <tr>
+            <th data-sort="Titel" class="sort">Titel</th>            
+            <th data-sort="Date" class="sort">Datum</th>
+            <th data-sort="Dauer" class="sort" >Dauer (h)</th>
+            <th data-sort="Location" class="sort" >Ort</th>
+        </tr>
+    </thead>
+</template>
+
+<template name="tableBodyIframe">
+    <tbody>    
+    {{#each this}}
+        <tr class="link" >
+            <td>{{Beschreibung.B1}}</td>            
+            <td>{{dateFormat Kursdaten.Start format="DD.MM"}} - {{dateFormat Kursdaten.Stop format="DD.MM.YYYY"}} ({{Kursdaten.Daten.length}}x)</td>
+            <td>{{dateFormat Kursdaten.Start format="dd. HH:mm"}} – {{dateFormat Kursdaten.Stop format="HH:mm"}} Uhr</td>
+            <td> 
+            {{#if location }}
+               {{location.Ortschaft}}, {{location.Name}}
+            {{/if}}
+           </td>
+        </tr>
+      {{/each}}      
+    </tbody>
+</template>

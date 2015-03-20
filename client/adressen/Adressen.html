@@ -1,0 +1,27 @@
+<template name="Adressen">
+
+   <h2>Adressen</h2>
+
+   <table class="table table-striped" >
+   	<thead>
+   		<tr>
+        		<th>Name</th>
+        		<th>Vorname</th>
+        		<th>Ort</th>
+        		<th>Adress ID</th>
+    		</tr>
+     </thead>
+   <tbody>
+    {{#each data}}
+    <tr>
+        <td>{{Name}}</td>
+        <td>{{Vorname}}</td>
+        <td>{{Ortschaft}}</td>
+        <td>{{Adress_id}}</td>
+    </tr>
+    {{/each}}
+   </tbody> 
+   </table>
+  
+
+</template>

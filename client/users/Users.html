@@ -1,0 +1,34 @@
+<template name="Users">
+<h2>Users</h2>
+    <table class="table table-striped" >
+    	<thead>
+   		<tr>
+        		<th data-sort="Name" class="sort" >Name</th>
+        		<th data-sort="Vorname" class="sort">Vorname</th>
+        		<th>Email</th>
+        		<th data-sort="Datum" class="sort" >Datum</th>
+        		<th></th>
+        		<th></th>
+
+			</tr>    
+		</thead>
+   <tbody>
+    {{#each data}}
+    <tr>
+        <td>{{profile.Adresse.Name}}</td>
+        <td>{{profile.Adresse.Vorname}}</td>
+        <td>{{emails.[0].address}}</td>
+        <td>{{dateFormat createdAt format="dddd - DD.MMMM.YYYY"}}</td>
+        <td><button type="button" class="btn btn-primary btn-xs"> <i class="fa fa-pencil-square-o"></i> Edit </button> </td>
+        <td> 
+	{{#if profile.Admin.LinkedTo}}
+		<p class="text-success" ><i class="fa fa-check"></i> </p> 
+	{{else}}
+		<p class="text-danger" ><i class="fa fa-check"></i> </p> 
+	{{/if}}
+	</td>
+    </tr>
+  {{/each}}
+  </tbody>
+  </table>
+</template>

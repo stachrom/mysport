@@ -1,0 +1,43 @@
+<template name="Bookings">
+  <h1>My Bookings</h1>
+    <table class="table table-striped" >
+        {{> tableheaderyMeineKurse}}
+        {{> tableBodyMeineKurse }}
+    </table>
+</template>
+
+<template name="tableheaderyMeineKurse">
+    <thead>
+        <tr>
+            <th data-sort="Kursnummer" class="sort">Nr.</th>
+            <th data-sort="Bescheibung.B1" class="sort" >Bechreibung</th>
+            <th>Sportart</th>
+            <th>Preis</th>
+            <th data-sort="Date" class="sort" >Datum</th>
+	    <th >Edit</th>
+        </tr>
+    </thead>
+</template>
+
+
+
+ <template name="tableBodyMeineKurse">
+    <tbody>    
+      {{#each this}}
+        <tr>
+            <td class="link">{{Kursnummer}}</td>
+            <td>{{Beschreibung.B1}}</td>
+            <td>{{Tag}}</td>
+            <td>{{Price}}.- SFR </td>
+            <td>{{dateFormat Date format="dddd - DD.MMMM YYYY"}}</td>
+	    <td>
+{{#if $eq rsvp "yes"}}
+<button class="btn btn-default btn-xs" >remove</button>
+{{else}}
+Anmeldung ist exportiert
+{{/if}}
+</td>        
+	</tr>
+      {{/each}}      
+    </tbody>
+</template> 

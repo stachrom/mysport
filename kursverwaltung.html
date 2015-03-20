@@ -1,0 +1,65 @@
+<head>
+   <meta charset="utf-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+   <meta name="viewport" content="width=device-width, initial-scale=1">   
+   <title>Kursverwaltung My-Sport</title>
+   <!-- Fav and touch icons -->
+   <link rel="apple-touch-icon-precomposed" sizes="144x144" href="images/ico/apple-touch-icon-144-precomposed.png">
+   <link rel="apple-touch-icon-precomposed" sizes="72x72" href="images/ico/apple-touch-icon-72-precomposed.png">
+   <link rel="apple-touch-icon-precomposed" href="images/ico/apple-touch-icon-57-precomposed.png">
+   <link rel="shortcut icon" href="images/ico/favicon.ico">
+</head>
+
+<body>
+
+
+
+</body>
+
+<template name="layout">
+      {{> navigation}}
+
+    <div class="container">
+        <header>
+          {{> errors}}
+        </header>
+
+        {{> yield}} 
+
+        <footer>
+            {{> yield region='footer'}}
+        </footer>
+    </div> 
+ 
+</template>
+
+
+<template name="iframe">
+
+    <div class="container">
+        <header>
+          {{> errors}}
+        </header>
+
+        {{> yield}}
+
+        <footer>
+            {{> yield region='footer'}}
+        </footer>
+    </div>
+
+</template>
+
+
+<template name="footer">
+  <h1>designed by meteor</h1>
+</template>
+
+
+<template name="loading">
+  <h1>Loading... <i class="fa fa-circle-o-notch fa-spin"></i></h1>
+</template>
+
+<template name="notFound">
+  <h1>Not Found!</h1>
+</template>

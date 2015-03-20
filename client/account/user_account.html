@@ -1,0 +1,82 @@
+
+<template name="Account">
+	<div class="row">
+ 		<div class="col-lg-12">
+        
+    {{#if currentUser}}
+        <h1><span class="glyphicon glyphicon-edit"></span> Account von {{emails.[0].address}} </h1>  
+        {{#if isAdminUser}}
+            {{> Account_Connector }}
+        {{/if}}
+        
+            {{> FormUserAccount }}
+ 
+    {{/if}} 
+
+
+   
+		</div>
+   	</div>
+
+</template>
+
+<template name="FormUserAccount">
+   <div class=" well">
+    {{#autoForm collection=users id="signupForm"  doc=editingDoc  type="update"}}
+    <fieldset>
+   <legend>User Account</legend>
+       <div class="row">
+         <div class="col-lg-6"> 
+            {{> afObjectField name='profile.Adresse'}}
+         </div> 
+         <div class="col-lg-6">
+            {{> afObjectField name='profile.Kommunikation'}}
+         </div>
+       </div>
+      <div class="row">
+         <div class="col-lg-6">
+      
+          {{#if isInRole 'admin'}}
+
+            {{> afObjectField name='profile.Admin'}}
+
+          {{/if}}
+
+
+      </div>
+         <div class="col-lg-6">
+         {{> afQuickField name='profile.GBDatum'}}
+        </div>
+      </div>
+   </fieldset>
+   <p class="text-right">
+   {{#if isInRole 'admin'}}
+      <button type="button" class="btn btn-danger"><i class="fa fa-times"></i> Delete</button>
+   {{/if}}    
+      <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o"></i> Save</button>
+   </p>
+    {{/autoForm}}
+   </div>
+</template>
+
+
+
+
+<template name="userFormAccount">
+	{{> quickForm collection="Adressen" id="updateUserAccount" doc=updateUserAccount type="update"}}
+</template>
+
+<template name="Account_Connector">	
+	<div class="form-group">
+		<p> Verbinde eine Adresse mit dem Account von {{emails.[0].address}} </p>
+   		<input class="form-control typeahead" name="adressen" type="text" placeholder="name" autocomplete="off" spellcheck="off" data-template="name_vorname" data-selected="selected" />
+	</div>
+</template>
+
+<template name="name_vorname">
+       <p class="repo-name">{{vorname}} {{name}} </p>
+</template>
+
+
+
+
