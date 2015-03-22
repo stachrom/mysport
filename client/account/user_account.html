@@ -69,7 +69,7 @@
 <template name="Account_Connector">	
 	<div class="form-group">
 		<p> Verbinde eine Adresse mit dem Account von {{emails.[0].address}} </p>
-   		<input class="form-control typeahead" name="adressen" type="text" placeholder="name" autocomplete="off" spellcheck="off" data-template="name_vorname" data-selected="selected" />
+   		<input class="typeahead" name="adressen" type="text" placeholder="name" autocomplete="off" spellcheck="off" data-template="name_vorname" data-selected="selected" data-source="adressen" />
 	</div>
 </template>
 

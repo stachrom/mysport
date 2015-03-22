@@ -184,28 +184,26 @@ Template.FormUserAccount.helpers({
    editingDoc: function editingDocHelper() {
      
 
-  //console.log("User_id "+Session.get("user_id"));
-  //console.log("Adress_id "+Session.get("Adress_id"));
+      //console.log("User_id "+Session.get("user_id"));
+      //console.log("Adress_id "+Session.get("Adress_id"));
 
-
-                if(Session.get("user_id") == "undefined" || Session.get("user_id") == null ){
+      if(Session.get("user_id") == "undefined" || Session.get("user_id") == null ){
                     var data = Meteor.userId();
-                }else{
+      }else{
                     var data = Session.get("user_id");
-                }
-  //console.log("data "+ data);
+      }
+      //console.log("data "+ data);
 
-            var user = Meteor.users.find( {_id: data }).fetch();
+      var user = Meteor.users.find( {_id: data }).fetch();
 
-           if(Session.get("Asress_id") == "undefined" || Session.get("Adress_id") == null ){
-		return user[0];
-           }else{
-                   
-                $( "input[name='profile.Admin.LinkedTo']" ).val( Session.get("Adress_id"));
-                Session.set("Adress_id", null);
-           }
+      if(Session.get("Asress_id") == "undefined" || Session.get("Adress_id") == null ){
+         return user[0];
+      }else{            
+         $("input[name='profile.Admin.LinkedTo']").val( Session.get("Adress_id"));
+         Session.set("Adress_id", null);
+     }
 
-            return user[0];
+         return user[0];
 
    }
 

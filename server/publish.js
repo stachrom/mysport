@@ -87,7 +87,6 @@ Meteor.publish("adressen", function (searchString, addressid) {
     }else{
 	   whereClause ={"_id": addressid};
     }
-				
     var result = Adressen.find( 
         whereClause,
         {fields: {},
