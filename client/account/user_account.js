@@ -66,6 +66,11 @@ Schema.UserAdresse = new SimpleSchema({
         regEx: /^[a-zA-Z-]{2,25}$/,
         optional: true
     },
+    ZuHandenVon:{type: String,
+        label: "Zu Handen von",
+        regEx: /^[a-z0-9A-z .]{3,30}$/,
+        optional: true
+    },
     Name: {
         type: String,
         label: "Name",

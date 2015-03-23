@@ -54,16 +54,37 @@ Meteor.methods({
      },
      exportAdresse: function(user, adress_id){
       
-        var adresse = user && user.profile ? user.profile.Adresse : {};
-        //console.log(adresse);
+        var Adresse = user && user.profile ? user.profile.Adresse : {};
+        var Kommunikation = user && user.profile ? user.profile.Kommunikation : {};
+        var Admin = user && user.profile ? user.profile.Admin : {};
+        var GBDate = user && user.profile ? user.profile.GBDatum : {};
+        // to-do: e-mail account  
+ 
        
         var xml = XmlBuilder.create('Kurs_Adressen', {version: '1.0', encoding: 'UTF-8'});
 
             xml.ele('Adressen')
                .ele('ADRESSNUMMER',    adress_id )
-               .insertAfter('ANREDE',  adresse.Anrede || '' )
-               .insertAfter('NAME',    adresse.Name || '' )
-               .insertAfter('VORNAME', adresse.Vorname || '' );
+               .insertAfter('ANREDE',  Adresse.Anrede || '' )
+               .insertAfter('NAME', Adresse.Name || '' )
+               .insertAfter('ABTEILUNGZHD', Adresse.ZuHandenVon || '' )
+               .insertAfter('STRASSE', Adresse.Strasse || '' )
+               .insertAfter('VORNAME', Adresse.Vorname || '' )
+               .insertAfter('PLZ', Adresse.PLZ || '' )
+               .insertAfter('ORTSCHAFT', Adresse.Ortschaft || '' )
+               .insertAfter('ADRESSZUSATZ', Adresse.Adresszusatz || '' )
+               .insertAfter('TELEFONGESCHAEF', Kommunikation.Telg || '' )
+               .insertAfter('TELEFONPRIVAT', Kommunikation.Telp || '' )
+               .insertAfter('MOBILNUMMER', Kommunikation.Telm || '' )
+               .insertAfter('CODE1_KDSTATUS',  Admin.Type || '' )
+               .insertAfter('CODE2_RES1',      Admin.Res1 || '' )
+               .insertAfter('CODE3_PRIVGESCH', Admin.Privgesch || '' )
+               .insertAfter('CODE4_RES2',      Admin.Res2 || '' )
+               .insertAfter('POSTFACH', Adresse.Postfach || '' )
+               .insertAfter('EMAILADRESSE', Kommunikation.Email || '' )
+               .insertAfter('GEBURTSDATUM', {FORMAT:"dd.MM.yyyy"}, moment(GBDate).format("DD.MM.YYYY") || '' )
+               .insertAfter('ESHOPADRESSE', "1" );
+
 
         return xml.end({ pretty: true});
      },
@@ -85,19 +106,22 @@ Meteor.methods({
         if (id[0] && id[0].Adress_id) {
            var Adress_id = id[0].Adress_id;
         }
-
         var booked_kurse = Kurse.find(
                 {rsvps : {$elemMatch : { user: user_id, rsvp: "yes" } } },
                 {fields: {'Kursnummer': 1, 'rsvps':1}}
             );
 
+
+//console.log(booked_kurse.count());
+
         if(booked_kurse.count() !== 0){
         // only call exportAdresse if we have a corresponding booking
         Meteor.call('exportAdresse', user, Adress_id, function (err, result){
-           if (err === undefined){
+        //console.log(err);           
+
+          if (err === undefined){
 
               var adresse = "europa3000kurs_adresse_"+ Adress_id +".xml";
-
               if(result !== undefined){
               //console.log(result);
                  fs.writeFile(filePath + adresse, result, 'utf-8', function(err) {
