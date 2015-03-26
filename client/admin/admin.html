@@ -1,5 +1,5 @@
 <template name="Admin">
-<h2>Admin Dashboard</h2>
+<h1>Admin Dashboard</h1>
 
 <div class="row">
     <div class="col-xs-12 col-md-4">
@@ -19,10 +19,54 @@
 
 
 <template name="new_booking">
-<h3>neu Anmeldungen Kurse</h3>
-<ul>
-<li>test</li>
-</ul>
+
+<div class="list-group">
+        <h2>zur Fakturierung bereit</h2>
+           {{#each new_bookings }}
+
+<div class="list-group-item">
+        <div class="row-action-primary togglebutton">
+           <label>
+                  <input type="checkbox">
+                  <span class="toggle"></span>
+           </label>
+        </div>
+       <div class="row-content">
+          <div class="least-content"><time datetime='{{dateFormat Buchungsdatum format="YYYY-MM-DD HH:mm"}}'> {{dateFormat Buchungsdatum format="DD.MMMM.YYYY"}} </time></div>
+             <h4 class="list-group-item-heading">{{Kursnummer}}</h4>          
+             <p class="list-group-item-text">
+             <a href="#" class="link kursnummer" >{{Titel}}</a>
+             <br>Preis: {{Preis}}.- 
+             <br>Kunde: <a href="#" class="link userid" >{{Username}}</a>
+          </p>      
+      </div>
+</div>
+<div class="list-group-separator"></div>
+{{else}}
+<div class="list-group-item">
+         <div class="row-action-primary">
+            <i class="mdi-action-done-all"></i>
+        </div>
+        <div class="row-content">
+            <h4 class="list-group-item-heading">Gratualtion!</h4>
+            <p class="list-group-item-text">
+              Alle Anmeldungen sind Fakturiert<br>
+              Zu den <a href="/admin/kursanmeldungen">fakuturierten Anmdeldugen</a>
+           </p>
+        </div>
+    </div>
+<div class="list-group-separator"></div>
+
+{{/each}}
+
+</div>
+
+        <p class="text-right">
+        <button class="btn btn-primary btn-fab btn-raised mdi-notification-sync faktura"></button>
+        </p>
+
+
+
 </template>
 
 

@@ -23,7 +23,7 @@ Template.tableBodyMeineKurse.events({
    },
    'click td.link': function (event, template) {
 
-	Router.go('kurs', {_id: this._id});
+	Router.go('kurs.show', {_id: this._id});
    }
 
 });
