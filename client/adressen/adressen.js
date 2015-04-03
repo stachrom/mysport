@@ -114,7 +114,7 @@ Adressen = new Meteor.Collection("adressen", {
     }
 });
 
-Deps.autorun(function () {
+Tracker.autorun(function () {
     Meteor.subscribe("adressen", Session.get('searchString'), Session.get("Adress_id"));
     Meteor.subscribe('users');
 });

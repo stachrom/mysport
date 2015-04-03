@@ -83,81 +83,32 @@
    </ul>
  {{/with}}
 </div>
-  <div class="col-xs-12 col-sm-6 col-md-3">
+
+<div class="col-xs-12 col-sm-6 col-md-3">
    <h2>Preise</h2>
-            {{#with Preise}}
-               <div class="radio radio-primary">
-                  {{#with Abo}}
-                     {{#if Beschreibung}}
-                        <label>
-                        {{Beschreibung}}
-                        <input type="radio" name="preis" value="{{CHF}}">
-                        <span class=ripple></span>
-                        <span class=circle></span>
-                        <span class=check></span>                        
-                        {{CHF}} sfr.-
-                        </label>
-                       {{/if}}
-                     {{/with}}
-
-                     {{#with Athlet}}
-                        {{#if Beschreibung}}
-                        <label>
-                        {{Beschreibung}}
-                        <input type="radio" name="preis" value="{{CHF}}">
-                        <span class=ripple></span>
-                        <span class=circle></span>
-                        <span class=check></span>
-                        {{CHF}} sfr.-
-                        </label>
-
-                        {{/if}}
-                     {{/with}}
-
-                     {{#with Pauschal}}
-                        {{#if Beschreibung}}
-                        <label>
-                        {{Beschreibung}}
-                        <input type="radio" name="preis" value="{{CHF}}">
-                        <span class=ripple></span>
-                        <span class=circle></span>
-                        <span class=check></span>                        
-                        {{CHF}} sfr.-
-                        </label>
-
-                        {{/if}}
-                     {{/with}}
-
-                     {{#with Res1}}
-                        {{#if Beschreibung}}
-                        <label>
-                        {{Beschreibung}}
-                        <input type="radio" name="preis" value="{{CHF}}">
-                        <span class=ripple></span>
-                        <span class=circle></span>                        
-                        <span class=check></span>                        
-                        {{CHF}} sfr.-
-                        </label>
-
-                        {{/if}}
-                     {{/with}}
-
-                     {{#with Res2}}
-                        {{#if Beschreibung}}
-                        <label>
-                        {{Beschreibung}}
-                        <input type="radio" name="preis" value="{{CHF}}">
-                        <span class=ripple></span>
-                        <span class=circle></span>
-                        <span class=check></span>                        
-                        {{CHF}} sfr.-
-                        </label>
-                        {{/if}}
-                      {{/with}}
-                     </div>
-            {{/with}}
+   <div class="radio radio-primary">
+         {{#each Preise}}
+            {{#if Beschreibung}}
+            <label>
+               {{Beschreibung}}
+               <input type="radio" name="preis" value="{{Value}}">
+               <span class=ripple></span>
+               <span class=circle></span>
+               <span class=check></span>
+               {{Value}}
+               {{#if Waehrung}}
+                  {{Waehrung}}
+               {{else}}
+                   CHF.-
+               {{/if}}
+            </label>
+           {{/if}}
+         {{/each}}
+   </div>
 </div>
 </div>
+
+
 <div class="row">
   <div class="col-md-12">
      {{#if currentUser}}
@@ -178,8 +129,8 @@
 
 </article>
 
-</template>
 
+</template>
 
 
 <template name="kursConfirmationModal">

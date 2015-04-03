@@ -49,17 +49,20 @@ Meteor.users.allow({
 
 
 Kurse.allow({
-  insert: function (userId, kurs) {
-    return false; // no cowboy inserts -- use createParty method
-  },
-  update: function (userId, kurs, fields, modifier) {
+   insert: function (userId, kurs) {
+     return false; // no cowboy inserts -- use createParty method
+   },
+   update: function (userId, kurs, fields, modifier) {
 
-   for(i=0; kurs.rsvps.length > i; i++){
-       if ( kurs.rsvps[i].user === Meteor.userId()){
-       //console.log(kurs);
-           return true;
-       }
-   }
+      if (Roles.userIsInRole(Meteor.userId(), ["admin"]))
+         return true;
+
+      for(i=0; kurs.rsvps.length > i; i++){
+         if ( kurs.rsvps[i].user === Meteor.userId()){
+            //console.log(kurs);
+            return true;
+         }
+      }
 
     if (userId !== kurs.rsvps.user)
       return false; // not the owner

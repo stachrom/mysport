@@ -1,7 +1,13 @@
 
-Schema = {};
+Schemas = {};
 
-Schema.Administration = new SimpleSchema({
+
+
+
+
+
+
+Schemas.Administration = new SimpleSchema({
     Type: {
         allowedValues: [1, 2, 3],        
         label: "Welcher Status hat der Athlet",        
@@ -11,6 +17,13 @@ Schema.Administration = new SimpleSchema({
     LinkedTo: {
         type: String,
         label: "Userdaten sind verlinkt mit:",
+        autoform: {
+           type: 'typeahead', 
+           options: {},
+           typeaheadOptions: {
+                 minLength: 3
+           }
+        },
         optional: true
     },
     Zusatz: {
@@ -25,7 +38,12 @@ Schema.Administration = new SimpleSchema({
 });
 
 
-Schema.Communication = new SimpleSchema({
+
+
+
+
+
+Schemas.Communication = new SimpleSchema({
     "Telg": {
         type: String,
         label: "Telefon Geschäft",
@@ -59,7 +77,7 @@ Schema.Communication = new SimpleSchema({
 
 
 
-Schema.UserAdresse = new SimpleSchema({
+Schemas.UserAdresse = new SimpleSchema({
    Anrede: {
         type: String,
         label: "Anrede",
@@ -103,14 +121,14 @@ Schema.UserAdresse = new SimpleSchema({
 });
 
 
-Schema.UserProfile = new SimpleSchema({
+Schemas.UserProfile = new SimpleSchema({
     Adresse: {
-        type: Schema.UserAdresse,
+        type: Schemas.UserAdresse,
         label: "Postanschrift",
         optional: true
     },
     Kommunikation: {
-        type: Schema.Communication,
+        type: Schemas.Communication,
         label: "Kommunikation",
         optional: true
     },
@@ -120,7 +138,7 @@ Schema.UserProfile = new SimpleSchema({
         optional: true
     },
     Admin: {
-            type: Schema.Administration,
+            type: Schemas.Administration,
             label: "My-Sport Administation",
             optional: true
     }
@@ -128,7 +146,7 @@ Schema.UserProfile = new SimpleSchema({
  
 
 
-Schema.User = new SimpleSchema({
+Schemas.User = new SimpleSchema({
     _id: {
         type: String,
         regEx: SimpleSchema.RegEx.Id
@@ -154,7 +172,7 @@ Schema.User = new SimpleSchema({
         type: Date
     },
     profile: {
-        type: Schema.UserProfile,
+        type: Schemas.UserProfile,
         optional: true
     },
     services: {
@@ -176,7 +194,58 @@ Schema.User = new SimpleSchema({
 });
 
 
-Meteor.users.attachSchema(Schema.User);
+Meteor.users.attachSchema(Schemas.User);
+
+Template.FormUserAccount.helpers({
+
+   typeaheadDatasets: function() {
+
+      var data = Adressen.find({}, { sort: {Name: -1}, fields:{Name:true, Vorname:true}, limit:10 }).fetch().map(
+        function(it){
+           return {
+              value: it._id,
+              label: it.Name
+           };
+        });
+
+      console.log(data);
+
+      return data;
+
+   }
+});
+
+Template.FormUserAccount.rendered = function () {
+
+   $('input[name="profile.Admin.LinkedTo"]').on('keypress', function (event, data) {
+     
+   
+      var options = {
+         "searchString": $(this).val(),
+         "userId": Meteor.userId()
+      };
+
+      if (Meteor.userId()){
+         Session.set('searchString', options.searchString);
+      }
+
+   });
+
+
+   $('input[name="profile.Admin.LinkedTo"]').on('keyup', function (event, data) {
+                 
+
+      if (event.which === 8 && Meteor.userId() ) {
+         Session.set('searchString', $(this).val());
+      }
+
+
+   });
+
+
+
+}
+
 
 
 Template.FormUserAccount.helpers({

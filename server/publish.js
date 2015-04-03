@@ -14,7 +14,6 @@ Meteor.publishComposite('kurseErweitert', function(kurs_id, user_id, tags, art){
        }
 
        var data =  Kurse.find( whereClausel, {sort: { "Kursdaten.Start": 1 }}); 
-
        return data;
     },
     children: [
@@ -52,15 +51,32 @@ Meteor.publishComposite('kurseErweitert', function(kurs_id, user_id, tags, art){
 });
 
 Meteor.publish("users", function () {
-  return Meteor.users.find(
-                        {},
-                        {fields:{
-                            'emails': 1, 
-                            'createdAt': 1,
-                            'profile': 1,
-                            }
-                        }
-                        );
+
+  var whereClausel = {};
+
+  if (Roles.userIsInRole(this.userId, ['admin'])) {
+     
+     whereClausel={};
+
+  }else {
+
+     whereClausel={_id: this.userId};
+
+  }
+
+
+   data = Meteor.users.find(
+             whereClausel,
+             {fields:{
+                'emails': 1,
+                'createdAt': 1,
+                'profile': 1,
+                }
+             }
+          );
+   // console.log(data.fetch().length);
+
+   return data;
                 
 });
 
@@ -93,7 +109,7 @@ Meteor.publish("adressen", function (searchString, addressid) {
         sort: {'Name': 1}, 
         limit: 50
         });
-      //console.log(result.fetch());    
+     console.log(result.fetch());    
 	return result;
 });
 

@@ -41,14 +41,14 @@ Meteor.methods({
                        Titel : "$Beschreibung.B1",
                        Dauer : "$Kursdaten.Dauer",
                        Zeit : "$Kursdaten.Uhrzeit",
-                       Daten : "$Kursdaten.Daten"
+                       Daten : "$Kursdaten.Daten.date"
                }},
                { $unwind : "$Daten" },
                { $match : { Daten : { $gt: new Date() } } },
                { $sort : { Daten: -1 } }
        ]);
           
-       //console.log(data); 
+      //console.log(data); 
        
        return data; 
 
@@ -97,7 +97,7 @@ Meteor.methods({
  	} else {
 	// add new rsvp entry
 	Kurse.update(kursId,
-		{$push: {rsvps: {user: this.userId, "rsvps.$.username": user.username, rsvp: rsvp, price: price, date: new Date()}}}
+		{$push: {rsvps: {user: this.userId, username: user.username, rsvp: rsvp, price: price, date: new Date()}}}
 	);
  	}	    
 

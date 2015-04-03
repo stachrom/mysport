@@ -1,0 +1,3 @@
+[submodule "packages/meteor-autoform-typeahead"]
+	path = packages/meteor-autoform-typeahead
+	url = https://github.com/stachrom/meteor-autoform-typeahead.git

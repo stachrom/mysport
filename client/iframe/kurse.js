@@ -1,6 +1,3 @@
-// Collections 
-Kurs = new Meteor.Collection("kurse");
-Locations = new Meteor.Collection("Location");
 
 // Sessions
 Session.setDefault("kurs_table_sort_iframe", {Daten: 1} );

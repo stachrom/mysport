@@ -92,31 +92,31 @@ var fs = Npm.require('fs'),
                             Display:  parseInt( kurse[i].ANZAHL_TEILN, 10) 
                         }
                     },
-                    Preise:{
-                        Pauschal:{
-                                CHF: Number(kurse[i].KURSPREIS1CHF),
-                                Beschreibung: kurse[i].KURSPREIS1BE
+                    Preise:[
+                        {
+                           Value: Number(kurse[i].KURSPREIS1CHF),
+                           Beschreibung: kurse[i].KURSPREIS1BE
                         },
-                        Athlet:{
-                                CHF: Number( kurse[i].KURSPREIS2CHF),
-                                Beschreibung: kurse[i].KURSPREIS2BE
+                        {
+                           Value: Number( kurse[i].KURSPREIS2CHF),
+                           Beschreibung: kurse[i].KURSPREIS2BE
                         },
-                        Abo: {
-                                CHF: Number( kurse[i].KURSPREIS3CHF),
-                                Beschreibung: kurse[i].KURSPREIS3BE
+                        {
+                           Value: Number( kurse[i].KURSPREIS3CHF),
+                           Beschreibung: kurse[i].KURSPREIS3BE
+                         },
+                        {
+                           Value: Number( kurse[i].KURSPREIS4CHF),
+                           Beschreibung: kurse[i].KURSPREIS4BE
                         },
-                        Res1:{
-                                CHF: Number( kurse[i].KURSPREIS4CHF),
-                                Beschreibung: kurse[i].KURSPREIS4BE
-                        },
-                        Res2: {
-                                CHF:  Number( kurse[i].KURSPREIS5CHF ),
-                                Beschreibung: kurse[i].KURSPREIS5BE
+                        {
+                           Value:  Number( kurse[i].KURSPREIS5CHF ),
+                           Beschreibung: kurse[i].KURSPREIS5BE
                         }
 
 
 
-                    },
+                    ],
                     Kurs_Leitung_id: kurse[i].KURSLEITERNR,
                     Adress_id: kurse[i].KURSORT,
                     Art: kurse[i].KURSART,
@@ -148,7 +148,7 @@ var fs = Npm.require('fs'),
 
                         if(kurse[i][prop]){
                             //console.log(moment(kurse[i][prop], "DD.MM.YYYY").isValid());
-                            moment(kurse[i][prop], "DD.MM.YYYY").isValid() === true && data.Kursdaten.Daten.push( new Date(moment(kurse[i][prop]+" "+ kurse[i].UHRZEITVON, "DD.MM.YYYY HH:mm").format("YYYY-MM-DD HH:mm")));
+                            moment(kurse[i][prop], "DD.MM.YYYY").isValid() === true && data.Kursdaten.Daten.push( {date : new Date(moment(kurse[i][prop]+" "+ kurse[i].UHRZEITVON, "DD.MM.YYYY HH:mm").format("YYYY-MM-DD HH:mm"))});
                         }
   
                     }
