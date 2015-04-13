@@ -16,8 +16,9 @@ Schemas.Kurspreis = new SimpleSchema({
    },
    "Currency":{
       type: String,
+      optional: true,
       allowedValues: ["CHF", "BTC", "USD", "EUR"]
-   }, 
+   } 
 });
 
 
@@ -28,6 +29,7 @@ Schemas.hatTeilgenommen = new SimpleSchema({
    "coachName":{
       type: String,
       label: "Coach Name",
+      optional: true,
       autoform: {
          type: "select",
          options: function () {
@@ -97,23 +99,117 @@ Schemas.rsvps = new SimpleSchema({
    },
    "hatTeilgenommen":{
       type: [Date],
-      label:"hat Teilgenommen am"
+      label:"hat Teilgenommen am",
+      optional: true
    },
    "hatTeilgenommen.$":{
       type: Date
    }
 });
 
+Schemas.KursLehrmittel = new SimpleSchema({
+   "L1":{
+      type: String,
+      optional: true
+   },
+   "L2":{
+      type:String,
+      optional: true
+   }  
+});
+
+
+
+
+
+Schemas.KursBeschreibung = new SimpleSchema({
+   "B1":{
+      type: String,
+      label: "Kurs Titel (B1)"
+   },
+   "B2":{ 
+      type: String,
+      label: "Zusammenfassung (B2)",
+     optional: true
+   },
+   "B3":{
+      type: String,
+      label: "Zusatzinfo (B3)",
+      optional: true
+   },
+   Beschreibung: {
+        type: String,
+        optional: true,
+        label:"Beschreibung Homepage",
+        autoform: {
+           afFieldInput: {
+              type: "contenteditable"
+           }
+        }
+    },
+   "Lehrmittel":{
+      type: Schemas.KursLehrmittel,
+      optional: true
+   }
+});
+
+Schemas.Kursleiter = new SimpleSchema({
+ Adress_id: {
+        type: String,
+        optional: true,
+        label: "Adress Id Europa3000",
+        autoform: {
+           readonly:true
+        },
+        autoValue: function(){
+          var user_id = this.field("Coach.Kursleiter").value;
+          var data = Meteor.users.find({_id: user_id }).fetch();
+          return data[0].profile.Admin.Adress_id;
+        }
+    },
+ Kursleiter:{
+      type: String,
+      label: "Default Coach Name",
+      autoform: {
+         type: "select",
+         options: function () {
+           return Roles.getUsersInRole("trainer").map(function (c) {
+                    return {label: c.username, value: c._id};
+                });
+         }
+      }
+   }
+});
+
+
+Schemas.KursStandort = new SimpleSchema({
+
+
+
+});
+
+
+
+
+
 
 Schemas.Kurs = new SimpleSchema({
     Adress_id: {
         type: String,
         label: "Adress ID",
-        max: 6
+        max: 6,
+        optional:true
+    },
+    Coach: {
+       type:Schemas.Kursleiter
     },
     Kursnummer: {
         type: String,
-        label: "Kursnummer"
+        label: "Europa 3000 Kursnummer",
+        autoform: {
+           disabled:true
+        }
+
     },
     Created:{
         type:Date
@@ -124,18 +220,7 @@ Schemas.Kurs = new SimpleSchema({
         allowedValues: ["Kurs", "Training"]
     },
     Beschreibung: {
-        type: String,
-        optional: true,
-        autoform: {
-           afFieldInput: {
-              type: "contenteditable"
-           }
-        }
-    },
-    lastCheckedOut: {
-        type: Date,
-        label: "Last date this book was checked out",
-        optional: true
+        type: Schemas.KursBeschreibung,
     },
     Kursdaten: {
         type: Schemas.Kursdaten,
@@ -160,7 +245,7 @@ Kurs.attachSchema(Schemas.Kurs);
 
 
 
-
+console.log(Schemas.Kurs);
 
 
 

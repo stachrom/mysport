@@ -2,7 +2,7 @@
 <template name="Account">
    <div class="row">
       <div class="col-lg-12">
-         <h1><span class="glyphicon glyphicon-edit"></span> Account von {{emails.[0].address}} </h1>  
+         <h1><span class="glyphicon glyphicon-edit"></span> Eduit User Account </h1>  
             {{> FormUserAccount }}
       </div>
    </div>
@@ -13,28 +13,26 @@
    <div class=" well">
     {{#autoForm collection=users id="signupForm"  doc=editingDoc  type="update"}}
     <fieldset>
-   <legend>User Account</legend>
+   <legend>User Account {{username}}</legend>
        <div class="row">
-         <div class="col-lg-6"> 
+         <div class="col-lg-4"> 
             {{> afObjectField name='profile.Adresse'}}
          </div> 
-         <div class="col-lg-6">
+         <div class="col-lg-4">
             {{> afObjectField name='profile.Kommunikation'}}
+         </div>
+         <div class="col-lg-4">
+            {{> afQuickField name='profile.GBDatum'}}
+         {{#if isInRole 'admin'}}
+            {{> afObjectField name='profile.Admin'}}
+         {{/if}}
          </div>
        </div>
       <div class="row">
-         <div class="col-lg-6">
-      
-          {{#if isInRole 'admin'}}
-
-            {{> afObjectField name='profile.Admin'}}
-
+         <div class="col-lg-12">
+          {{#if isInRole 'admin, trainer'}}
+            {{> afArrayField name='profile.Comment'}}
           {{/if}}
-
-
-      </div>
-         <div class="col-lg-6">
-         {{> afQuickField name='profile.GBDatum'}}
         </div>
       </div>
    </fieldset>
@@ -55,3 +53,9 @@
 	{{> quickForm collection="Adressen" id="updateUserAccount" doc=updateUserAccount type="update"}}
 </template>
 
+<template name="quickForm_typeahead">
+   <input type="text" data-schema-key="{{this.name}}" name="{{this.name}}" class="{{this.cls}} form-control typeahead" value="{{this.value}}" autocomplete="off" spellcheck="off" data-source="adressen" data-selected="selected" data-template="typeahead_dropdown_name_vorname"  {{this.atts}}/>
+</template>
+<template name="typeahead_dropdown_name_vorname">
+       <p class="repo-name">{{vorname}} {{name}} </p>
+</template>

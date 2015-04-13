@@ -1,50 +1,52 @@
 
+Session.setDefault("Adress_id", null );
 Schemas = {};
 
-
-
-
-
-
+AutoForm.addInputType('typeahead', {
+  template: 'quickForm_typeahead'
+});
 
 Schemas.Administration = new SimpleSchema({
     Type: {
         allowedValues: [1, 2, 3],        
-        label: "Welcher Status hat der Athlet",        
+        label: "Athletenstatus",        
         type: Number,
         optional: true
     },
-    LinkedTo: {
-        type: String,
-        label: "Userdaten sind verlinkt mit:",
-        autoform: {
-           type: 'typeahead', 
-           options: {},
-           typeaheadOptions: {
-                 minLength: 3
-           }
-        },
-        optional: true
+    verlinkung:{
+       type: String,
+       label: "Verlinkt mit",
+       optional: true,
+       autoform: {
+          type: "typeahead"
+       }
+    },   
+    LinkedTo:{
+       type: String,
+       label: "user Id",
+       optional: true,
+       autoform: {
+          readonly: true
+       }
     },
-    Zusatz: {
-        type: String,
-        label: "Notizen",
-        optional: true,
-        max: 2000,
-        autoform: {
-           rows: 10
-        }
+    Adress_id:{
+       type: String,
+       label: "Europa3000 Adress Id",
+       autoform: {
+          readonly: true
+       }
     }
+
 });
 
 
 
-
-
-
-
 Schemas.Communication = new SimpleSchema({
-    "Telg": {
+
+   LinkedTo: {
+        type: String,
+        label: "Userdaten sind verlinkt mit:",
+
         type: String,
         label: "Telefon Geschäft",
         regEx: /^[0-9 +()]{10,30}$/,
@@ -121,6 +123,45 @@ Schemas.UserAdresse = new SimpleSchema({
 });
 
 
+Schemas.Notizen = new SimpleSchema({
+    "Notiz": {
+        type: String,
+        autoform:{
+           label: false
+        }
+    },
+    "user_id": {
+        type: String,
+        optional:true,
+        autoform:{
+	   type: "hidden",
+           label: false
+	},
+        autoValue:function(){
+           if(this.isSet === false){
+              return Meteor.userId();
+           }        
+        }
+
+    },
+    "createdAt": {
+        type: Date,
+        optional:true,
+        autoform:{
+           type: "hidden",
+           label: false
+        },
+        autoValue:function(){
+           if(this.isSet === false){
+              return new Date;
+           }else{
+              this.unset();
+           }
+        }
+    
+    }
+});
+
 Schemas.UserProfile = new SimpleSchema({
     Adresse: {
         type: Schemas.UserAdresse,
@@ -132,15 +173,19 @@ Schemas.UserProfile = new SimpleSchema({
         label: "Kommunikation",
         optional: true
     },
-    GBDatum: {
-        type: Date,
-        label: "Geburtstagsdatum",
-        optional: true
-    },
     Admin: {
             type: Schemas.Administration,
             label: "My-Sport Administation",
             optional: true
+    },
+    Comment: {
+            type: [Schemas.Notizen],       
+            optional: true
+    },
+    GBDatum: {
+        type: Date,
+        label: "Geburtstagsdatum",
+        optional: true
     }
 });
  
@@ -193,56 +238,44 @@ Schemas.User = new SimpleSchema({
     }
 });
 
-
 Meteor.users.attachSchema(Schemas.User);
 
-Template.FormUserAccount.helpers({
+Template.quickForm_typeahead.helpers({
 
-   typeaheadDatasets: function() {
 
-      var data = Adressen.find({}, { sort: {Name: -1}, fields:{Name:true, Vorname:true}, limit:10 }).fetch().map(
-        function(it){
+   selected: function ( event, suggestion, datasetName ) {
+
+       // set the id from the europa3000 Adresse
+       //console.log( suggestion.adress_id);
+       Session.set("Europa3000",{adresse: {id:suggestion.adress_id}});
+       Session.set("Adress_id", suggestion.id);
+       //console.log(suggestion);
+   },
+
+   adressen: function( query, callback) {
+     Session.set('searchString', query);
+
+     var data = Adressen.find({}, { sort: {Name: -1}, fields:{Name:true, Vorname:true, Adress_id:true}, limit:10 }).fetch().map(
+        function(it){     
            return {
-              value: it._id,
-              label: it.Name
+              value: it.Name,
+              id: it._id,
+              adress_id: it.Adress_id,
+              name: it.Name,
+              vorname: it.Vorname
            };
         });
 
-      console.log(data);
-
-      return data;
-
+     callback(data);
    }
 });
 
-Template.FormUserAccount.rendered = function () {
-
-   $('input[name="profile.Admin.LinkedTo"]').on('keypress', function (event, data) {
-     
-   
-      var options = {
-         "searchString": $(this).val(),
-         "userId": Meteor.userId()
-      };
-
-      if (Meteor.userId()){
-         Session.set('searchString', options.searchString);
-      }
-
-   });
 
 
-   $('input[name="profile.Admin.LinkedTo"]').on('keyup', function (event, data) {
-                 
 
-      if (event.which === 8 && Meteor.userId() ) {
-         Session.set('searchString', $(this).val());
-      }
+Template.quickForm_typeahead.rendered = function () {
 
-
-   });
-
-
+   Meteor.typeahead.inject();
 
 }
 
@@ -273,8 +306,13 @@ Template.FormUserAccount.helpers({
       if(Session.get("Asress_id") == "undefined" || Session.get("Adress_id") == null ){
          return user[0];
       }else{            
+         var europa3000 = Session.get("Europa3000");
+
          $("input[name='profile.Admin.LinkedTo']").val( Session.get("Adress_id"));
+         $("input[name='profile.Admin.Adress_id']").val( europa3000.adresse.id);
+
          Session.set("Adress_id", null);
+         Session.set("Europa3000", null);
      }
 
          return user[0];

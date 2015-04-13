@@ -13,7 +13,7 @@ Template.Users.helpers({
 Template.Users.events({
         'click button': function (event, template) {
            Session.set("user_id", this._id );
-           Router.go('/account/');
+           //Router.go('/account/');
         }
 });
 

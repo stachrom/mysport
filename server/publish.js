@@ -109,7 +109,7 @@ Meteor.publish("adressen", function (searchString, addressid) {
         sort: {'Name': 1}, 
         limit: 50
         });
-     console.log(result.fetch());    
+   
 	return result;
 });
 
