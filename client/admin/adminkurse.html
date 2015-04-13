@@ -1,0 +1,63 @@
+<template name="adminkurse">
+
+
+<table class="table table-striped" >
+        {{> kurseadminheader}}
+        {{> kurseadminbody}}
+     </table>
+
+
+</template>
+
+
+
+
+
+
+<template name="kurseadminheader">
+    <thead>
+        <tr>
+            <th data-sort="Titel" class="sort">Titel</th>
+            <th data-sort="Art" class="sort">Kurs Nummer</th>
+            <th >Type</th>
+            <th data-sort="Zeit" class="sort" >Start</th>
+            <th data-sort="Dauer" class="sort" >Dauer (h)</th>
+            <th data-sort="Daten" class="sort" >Anmeldungen</th>
+        </tr>
+    </thead>
+</template>
+
+<template name="kurseadminbody">
+    <tbody>
+     {{#each this}}
+        <tr class="link" >
+            <td>{{Beschreibung.B1}}</td>
+            <td>{{Kursnummer}}</td>
+            <td>{{Tag}}</td>
+            <td>{{Zeit}}</td>
+            <td>{{Dauer}} </td>
+            <td>{{#if rsvps}} 
+                {{rsvps.length}}
+                {{/if}}
+            </td>
+        </tr>
+      {{/each}}
+    </tbody>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
