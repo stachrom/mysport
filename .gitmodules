@@ -1,3 +1,6 @@
 [submodule "packages/meteor-autoform-typeahead"]
 	path = packages/meteor-autoform-typeahead
 	url = https://github.com/stachrom/meteor-autoform-typeahead.git
+[submodule "packages/meteor-accounts-admin-ui-bootstrap-3"]
+	path = packages/meteor-accounts-admin-ui-bootstrap-3
+	url = https://github.com/andylash/meteor-accounts-admin-ui-bootstrap-3.git
