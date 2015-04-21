@@ -126,8 +126,11 @@ Schemas.UserAdresse = new SimpleSchema({
 Schemas.Notizen = new SimpleSchema({
     "Notiz": {
         type: String,
-        autoform:{
-           label: false
+        autoform: {
+           label:false,
+           afFieldInput: {
+              type: "contenteditable"
+           }
         }
     },
     "user_id": {

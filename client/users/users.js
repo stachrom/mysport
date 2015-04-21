@@ -1,20 +1,23 @@
 
 Session.set("user_id", Meteor.userId() );
 
+Template.accountsAdminControlPanel.events({
+
+   'click .edituseraccount':function(){
+
+      Session.set("user_id", this.user._id );
+      Router.go('/account/');
+
+   }
+
+});
+
 
 Template.Users.helpers({
-	data: function () {
-		var users = Meteor.users.find();    
-		//console.log( users.fetch());
-		return users;
-	}
-}); 
-
-Template.Users.events({
-        'click button': function (event, template) {
-           Session.set("user_id", this._id );
-           //Router.go('/account/');
-        }
+   // check if user is an admin
+   isAdminUser: function() {
+       return Roles.userIsInRole(Meteor.user(), ['admin']);
+   }
 });
 
 

@@ -3,6 +3,38 @@ Template.new_booking.rendered = function() {
    // $('a.link').tooltip() //initialize all tooltips in this template
 };
 
+Template.new_user.helpers({
+  data: function () {
+
+      var readyToLink = Meteor.users.find({ 'profile.Admin.LinkedTo': { $exists: false } }); 
+      
+      return {
+              readyToLink : readyToLink,
+              count : readyToLink.fetch().length,
+              TotalUserCount : Meteor.users.find().fetch().length
+             };
+  },
+  
+});
+
+Template.new_user.events({
+
+ 'click .actionUserVerlinken': function (event, template) {
+
+      Session.set("user_id", this._id );
+      //console.log(this);
+
+   },
+
+
+
+
+});
+
+
+
+
+
 Template.new_booking.events({
 
    'click input[type=checkbox]': function (event, template) {

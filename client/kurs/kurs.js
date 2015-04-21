@@ -283,7 +283,7 @@ Template.Kurs.rendered=function() {
             return false; // not selectable 
         }
    });
-   }
+}
 
 
 Template.Kurs.events({

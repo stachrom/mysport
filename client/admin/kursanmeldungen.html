@@ -1,0 +1,133 @@
+
+<template name="kursanmeldungen">
+<h1> Kursanmeldungen </h1>
+
+<div class="row">
+    <div class="col-lg-3 col-xs-12 col-md-4">
+    {{> anmeldungsfilter}}
+    </div>
+    <div class="col-xs-12 col-md-8 col-lg-9">
+   {{> anmeldungen}}
+    </div>
+</div>
+</template>
+
+<template name="anmeldungsfilter">
+<div  class="well">
+   <fieldset>
+      <legend>Filter</legend>
+      <div id="datepicker"></div>
+
+     {{> typeahead_user}}
+
+     {{> typeahead_kurse}}
+  
+   <div class="form-group">    
+   <label for="anmeldungszustand" class="control-label">RSVP</label>
+   <select class="form-control" id="anmeldungszustand">
+         <option value="" disabled selected>treffen sie eine Auswahl</option>
+         <option value="fakturiert" >fakturiert</option>
+         <option value="warteliste">warteliste</option>
+         <option value="exported">exported</option>
+         <option value="yes">yes</option>
+         <option value="no">no</option>
+   </select>
+   </div>
+
+
+   <button class="btn btn-default btn-flat clearfilter"><i class="mdi-navigation-close"></i>Clear Filter</button>
+
+</fieldset>
+</div>
+</template>
+
+<template name="typeahead_user">
+   <div class="form-group">
+      <label for="typeahead_user" class="control-label">Kunde </label>
+      <input id="typeahead_user" class="form-control typeahead" name="user" type="text" placeholder=" Username" autocomplete="off" spellcheck="off" data-template="typeahead_data_username" data-selected="selected" data-source="meteoruser" />
+   </div>
+</template>
+
+<template name="typeahead_data_username">
+       <p class="repo-name">{{value}} - {{name}} {{vorname}}</p>
+</template>
+
+<template name="typeahead_kurse">
+   <div class="form-group">
+      <label for="typeahead_krse" class="control-label">Kurse</label>
+      <input id="typeahead_kurse" class="form-control typeahead" name="kurse" type="text" placeholder=" Kurse" autocomplete="off" spellcheck="off" data-template="typeahead_data_kurse" data-selected="selected" data-source="kurse" />
+   </div>
+</template>
+
+<template name="typeahead_data_kurse">
+       <p class="repo-name"> {{kursnummer}} - {{value}}</p>
+</template>
+
+
+<template name="anmeldungen">
+
+<div class="list-group">
+        <h2>{{anmeldezustand}}</h2>
+
+
+           {{#each this.buchungen}}
+
+<div class="list-group-item">
+        <div class="row-action-primary">
+        <i class="mdi-file-folder"></i>
+        </div>
+       <div class="row-content">
+          <div class="least-content"><time datetime='{{dateFormat Buchungsdatum format="YYYY-MM-DD HH:mm"}}'> {{dateFormat Buchungsdatum format="DD.MMMM.YYYY HH:mm"}} </time></div>
+   <label class="list-group-item-heading">
+      <select class="form-control">
+      {{> kursanmeldungen_select_options rsvp=Rsvp}}
+      </select>
+   </label>
+
+
+             <p class="list-group-item-text">
+             <a href="#" class="link kursnummer" >{{Kursnummer}} - {{Titel}}</a>
+             <br>Preis: {{Preis}}.-
+             <br>Kunde: <a href="#" class="link userid" >{{Username}}</a>
+          </p>
+      </div>
+</div>
+<div class="list-group-separator"></div>
+{{else}}
+   <div class="list-group-item">
+      <div class="row-action-primary">
+         <i class="mdi-action-announcement"></i>
+      </div>
+      <div class="row-content">
+          <h4 class="list-group-item-heading">keine Buchungen gefunden!</h4>
+          <p class="list-group-item-text">
+             Ändern sie ihre Filtereinstellungen<br>
+             {{#if this.statistik}}
+                {{#each this.statistik}}
+                <div>
+                   <strong>{{_id}} : </strong>
+                   {{count}} Buchungen
+                   {{total}} .-CHF
+                </div>
+                {{/each}}
+
+             {{/if}}
+          </p>
+      </div>
+   </div>
+   <div class="list-group-separator"></div>
+{{/each}}
+
+</div>
+</template>
+
+<template name="kursanmeldungen_select_options">
+
+{{#each data}}
+{{#if selected}}
+<option value="{{value}}" selected  >{{key}}</option>
+{{else}}
+<option value="{{value}}" >{{key}}</option>
+{{/if}}
+{{/each}}
+</template>
