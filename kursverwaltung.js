@@ -2,6 +2,9 @@
 if (Meteor.isClient){
    
    Meteor.startup(function () {
+      // local collections
+      Kursanmeldungen = new Mongo.Collection(null);
+
       TAPi18n.setLanguage("de");
       T9n.language = "de";
    

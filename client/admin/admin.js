@@ -4,8 +4,8 @@ Template.new_booking.rendered = function() {
 };
 
 Template.new_user.helpers({
-  data: function () {
-
+  
+   data: function () {
       var readyToLink = Meteor.users.find({ 'profile.Admin.LinkedTo': { $exists: false } }); 
       
       return {
@@ -13,54 +13,55 @@ Template.new_user.helpers({
               count : readyToLink.fetch().length,
               TotalUserCount : Meteor.users.find().fetch().length
              };
-  },
+   }
   
 });
 
 Template.new_user.events({
 
- 'click .actionUserVerlinken': function (event, template) {
-
+   'click .actionUserVerlinken': function (event, template) {
       Session.set("user_id", this._id );
       //console.log(this);
-
-   },
-
-
-
+   }
 
 });
-
-
-
 
 
 Template.new_booking.events({
 
    'click input[type=checkbox]': function (event, template) {
+   
+         var anzahl = parseInt( $(event.currentTarget.offsetParent).find('input[type=number]').val(), 10);
+         var timestamp = new Date( $(event.currentTarget.offsetParent).find('input[type=date]').val() ).getTime();
+         var kursId = this.kurs_id;
+         var rsvp= "fakturiert";
+         var userId = this.Kunde;
 
-        var kursId = this.kurs_id;
-        var rsvp= "fakturiert";
-        var userId = this.Kunde;
 
-         if ($(event.target).hasClass("checked")){
+         if( ! moment(timestamp).isValid())
+            return throwError("Geben sie ein End-Datum an");
 
-            $(event.target).removeClass( "checked" );
-            var rsvp= "exported";
+         if((Match.test(anzahl, Match.Integer)) && (anzahl >= 1) ){
 
          }else{
+            return throwError("client Geben sie eine Zahl an, welche grösser 1 ist");
+         }
 
+         if ($(event.target).hasClass("checked")){
+            $(event.target).removeClass( "checked" );
+            var rsvp= "exported";
+         }else{
             $(event.target).addClass( "checked" );
             var rsvp= "fakturiert";
          }
  
 
-         Meteor.call('fakturieren', kursId, rsvp, userId, function (error, result) {
+         Meteor.call('fakturieren', kursId, rsvp, userId, anzahl, timestamp, function (error, result) {
                 if (error === undefined) {
                     clearErrors();
                 } else {
                     throwError(error.reason);
-                    console.log(error.reason);
+                    console.log(error);
                 }
          });
    },
@@ -91,9 +92,6 @@ Template.new_booking.events({
            });
       
 
-   },
-
-
-
+   }
 });
 

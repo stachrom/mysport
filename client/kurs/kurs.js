@@ -164,7 +164,7 @@ Schemas.Kursleiter = new SimpleSchema({
         autoValue: function(){
           var user_id = this.field("Coach.Kursleiter").value;
           var data = Meteor.users.find({_id: user_id }).fetch();
-          return data[0].profile.Admin.Adress_id;
+          //console.log( data[0].profile.Admin.Adress_id;
         }
     },
  Kursleiter:{

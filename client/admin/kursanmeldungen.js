@@ -83,22 +83,23 @@ Template.kursanmeldungen_select_options.helpers({
 
 
 Template.anmeldungen.events({
-   "change select": function (event, template) {
- 
-      var rsvp = $(event.currentTarget).val();
-      var kursId = this.kurs_id;
-      var userId = this.Kunde;
+		"change": function (event, template) {
 
-         Meteor.call('fakturieren', kursId, rsvp, userId, function (error, result) {
-                if (error === undefined) {
-                    clearErrors();
-                } else {
-                    throwError(error.reason);
-                    console.log(error.reason);
-                }
-         });
-   },
-   'click a.userid': function (event, template) {
+
+		var rsvp         = $(event.currentTarget.offsetParent).find('select').val();
+		var gueltigt_bis = new Date( $(event.currentTarget.offsetParent).find('input[type=date]').val() );
+		var anzahl       = parseInt( $(event.currentTarget.offsetParent).find('input[type=number]').val(), 10);
+
+		Kursanmeldungen.update({_id: this._id},{$set:{"changed": true, 
+                                                              "Rsvp": rsvp, 
+                                                              "BerechtigtZurTeilnahme": anzahl, 
+                                                              "BerechtigtZurTeilnahmeBis": gueltigt_bis  
+                                                             }
+                                                       }); 
+
+
+		},
+		'click a.userid': function (event, template) {
 
          event.preventDefault();
          Session.set("user_id", this.Kunde );
@@ -111,12 +112,39 @@ Template.anmeldungen.events({
          event.preventDefault();
          Router.go('kurs.show', {_id: this.kurs_id});
 
-   },
+   }
 
 
 });
 
+Template.row_action_primary.events({
+   'click button': function (event, template) {
 
+       var data = this.data;
+
+       var kursId =  data.kurs_id;
+       var rsvp   =  data.Rsvp;
+       var userId =  data.Kunde;
+       var anzahlTeilnahmen =  data.BerechtigtZurTeilnahme; 
+       var timestamp = data.BerechtigtZurTeilnahmeBis.getTime();
+
+       console.log(timestamp);
+
+           Meteor.call('fakturieren', kursId, rsvp, userId, anzahlTeilnahmen, timestamp, function (error, result) {
+                if (error === undefined) {
+                    clearErrors();
+                    Kursanmeldungen.update({_id: data._id},{$unset:{"changed":""}});
+                } else {
+                    throwError(error.reason);
+                    console.log(error.reason);
+                }
+      });
+
+
+
+
+   }
+});
 
 
 Template.typeahead_user.helpers({

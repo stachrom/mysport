@@ -80,9 +80,13 @@ anmeldungenUnwind: function(options){
                        Rsvp :  "$rsvps.rsvp",
                        Preis : "$rsvps.price",
                        Kunde : "$rsvps.user",
-                       Username: "$rsvps.username",
+                       Kursende : "$Kursdaten.Stop",
+                       AnzahlKursdaten : { $size: { "$ifNull": [ "$Kursdaten.Daten", [] ] }}, 
+                       hatTeilgenommen : { $size: { "$ifNull": [ "$rsvps.hatTeilgenommen", [] ] }}, 
+                       BerechtigtZurTeilnahmeBis :       "$rsvps.berechtigtZurTeilnahmeBis",
+                       Username:     "$rsvps.username",
                        Beschreibung: "$rsvps.beschreibung",
-                       BerichtigtZurTeilnahme:"$rsvps.berechtigtZurTeilnahme",
+                       BerechtigtZurTeilnahme:"$rsvps.berechtigtZurTeilnahme",
                        Buchungsdatum : "$rsvps.date"
                }},
                match2,
@@ -91,7 +95,7 @@ anmeldungenUnwind: function(options){
       ]);
    }
 
-    //console.log(data);
+    console.log(data);
     return {"buchungen": data};
 
     },
@@ -168,13 +172,28 @@ anmeldungenUnwind: function(options){
  	}	    
 
     },
-    fakturieren:function(kursId, rsvp, userId){
-
+    fakturieren:function(kursId, rsvp, userId, anzahlTeilnahmen, timestamp){
+      
        check(kursId, String);
        check(rsvp, String);
        check(userId, String);
+       check(parseInt(anzahlTeilnahmen, 10), Match.Integer);
 
        var loggedInUser = Meteor.user();
+       var anzahl = parseInt(anzahlTeilnahmen, 10);
+
+
+       if( moment(timestamp).isValid()){
+          var date = moment(timestamp).toDate();
+       }else{
+          throw new Meteor.Error(400, "Geben sie ein End-Datum an");
+       }
+
+       if(Match.test(anzahl, Match.Integer) && (anzahl >= 1) ){
+
+       }else{
+           throw new Meteor.Error(400, "Geben sie eine Zahl an, welche grösser 1 ist");
+       }
 
        if (! _.contains(['exported', 'fakturiert', 'warteliste', 'yes', 'no'], rsvp))
            throw new Meteor.Error(400, "Invalid RSVP");
@@ -184,7 +203,7 @@ anmeldungenUnwind: function(options){
 
        var result= Kurse.update(
                 {_id: kursId, "rsvps.user": userId},
-                {$set: {"rsvps.$.rsvp": rsvp}}
+                {$set: {"rsvps.$.rsvp": rsvp, "rsvps.$.berechtigtZurTeilnahme": anzahl, "rsvps.$.berechtigtZurTeilnahmeBis": date}}
           );
 
        return result;
