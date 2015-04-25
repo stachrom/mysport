@@ -71,7 +71,6 @@ Template.new_booking.events({
          Session.set("user_id", this.Kunde );
          Router.go('/account/');
 
-
    },
    'click a.kursnummer': function (event, template) {
          
@@ -80,18 +79,13 @@ Template.new_booking.events({
 
    },
    'click button.faktura': function (event, template) {
-           var options = {};
-           var user = {};
-
-      Meteor.call('anmeldungenUnwind', user, options, function(error, result) {
-
-              if(error === undefined){
-                 Session.set("new_bookings", result)
-              }
-
-           });
       
+      var options ={"rsvp" : "exported"};
 
+      Meteor.call('anmeldungenUnwind', options, function(error, result) {
+            if(error === undefined){
+               Session.set("new_bookings", result.buchungen)
+            }
+      });
    }
 });
-
