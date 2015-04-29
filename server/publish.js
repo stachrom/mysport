@@ -1,8 +1,6 @@
 
 
-Meteor.publishComposite('kurseErweitert', function(kurs_id, user_id, tags, art){
-  return {    
-    find: function() {
+Meteor.publish('kurse', function(kurs_id, user_id, tags, art){
         // Find all the Kurse
        var whereClausel= {};
     
@@ -15,39 +13,6 @@ Meteor.publishComposite('kurseErweitert', function(kurs_id, user_id, tags, art){
 
        var data =  Kurse.find( whereClausel, {sort: { "Kursdaten.Start": 1 }}); 
        return data;
-    },
-    children: [
-        {
-          collectionName : "Location",
-          find: function(kurs) {
-             var adresse = Adressen.find(
-                    { Adress_id: kurs.Adress_id },
-                    { limit: 1, 
-                      fields: {'Name': 1, 'Ortschaft': 1, 'Adress_id': 1, 'Strasse':1, 'Plz':1 }
-                    }
-                );
-          
-             //console.log(adresse.fetch());
-             return adresse;
-            }
-        },
-        {
-          collectionName : "Kursleiter",
-          find: function(kurs) {
-             var adresse = Adressen.find(
-                    { Adress_id: kurs.Kurs_Leitung_id },
-                    { limit: 1,  
-                      fields: {'Name': 1, 'Vorname': 1, 'Adress_id': 1 }
-                    }
-                );
-
-             //console.log(adresse.fetch());
-             return adresse;
-            }
-        } 
-          
-    ]
- }
 });
 
 Meteor.publish("users", function () {

@@ -1,6 +1,79 @@
 <template name="editkurs">
 
- {{> quickForm collection="Kurs" doc=this id="editkurs" type="update"}}
+<h1>Kurs Bearbeiten</h1>
+
+
+ {{#autoForm collection="Kurs" doc=this id="editkurs" type="update"}}
+
+
+<div role="tabpanel">
+  <!-- Nav tabs -->
+  <ul class="list-unstyled list-inline nav_paneltab" role="tablist">
+    <li role="presentation" class="active"><a href="#Kursbeschreibung" aria-controls="Kursbeschreibung" role="tab" data-toggle="tab">Beschreibung</a></li>
+    <li role="presentation"><a href="#Kurspreise" aria-controls="Kurspreise" role="tab" data-toggle="tab">Preise</a></li>
+    <li role="presentation"><a href="#Kursrsvps" aria-controls="Kursrsvps" role="tab" data-toggle="tab">RSVPS</a></li>
+    <li role="presentation"><a href="#Kursdaten" aria-controls="Kursdaten" role="tab" data-toggle="tab">Daten</a></li>
+  </ul>
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="Kursbeschreibung">
+     <div class="row">
+        <div class="col-lg-4">
+           {{> afFormGroup name="Active" }}
+        </div>
+        <div class="col-lg-4">
+           {{> afFormGroup name="Kursnummer" }}
+
+        </div>
+        <div class="col-lg-4">
+
+           {{> afQuickField name='Art'}}
+
+
+      </div>
+   </div>   
+   <div class="row">
+          <div class="col-lg-6">
+             {{> afObjectField name='Beschreibung'}}
+          </div>
+          <div class="col-lg-6">
+             {{> afFormGroup name='Coach'}}
+        
+             {{> afQuickField name='Created'}}
+             {{> afQuickField name='Adress_id'}}
+          </div>
+       </div>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="Kurspreise">
+       {{> afArrayField name='Preise'}}
+    </div>
+    <div role="tabpanel" class="tab-pane" id="Kursrsvps">
+      {{> afArrayField name='rsvps'}}
+    </div>
+    <div role="tabpanel" class="tab-pane" id="Kursdaten">
+      {{> afObjectField name='Kursdaten'}}
+   </div>
+  </div>
+</div>
+
+   <p class="text-right">
+      <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o"></i> Save</button>
+   </p>
+
+  {{/autoForm}}
+
 
 
 </template>
+
+<template name="afTogglebutton">
+   <div class="togglebutton" >
+      <label>
+         <input type="checkbox" value="true" {{atts}} />
+         <span class="toggle"></span>          
+      </label>
+   </div>
+</template>
+
+
+

@@ -1,8 +1,57 @@
 
 // Collections für eine Kurs
-Kursleiter = new Meteor.Collection("Kursleiter");
-Locations = new Meteor.Collection("Location");
 Kurs = new Meteor.Collection("kurse");
+
+AutoForm.addInputType('togglebutton', {
+  template: 'afTogglebutton',
+  valueOut: function () {
+    return !!this.is(":checked");
+  },
+  valueConverters: {
+    "string": function (val) {
+      if (val === true) {
+        return "TRUE";
+      } else if (val === false) {
+        return "FALSE";
+      }
+      return val;
+    },
+    "stringArray": function (val) {
+      if (val === true) {
+        return ["TRUE"];
+      } else if (val === false) {
+        return ["FALSE"];
+      }
+      return val;
+    },
+    "number": function (val) {
+      if (val === true) {
+        return 1;
+      } else if (val === false) {
+        return 0;
+      }
+      return val;
+    },
+    "numberArray": function (val) {
+      if (val === true) {
+        return [1];
+      } else if (val === false) {
+        return [0];
+      }
+      return val;
+    }
+  },
+  contextAdjust: function (context) {
+    if (context.value === true) {
+       context.atts.checked = "";     
+    }
+    //don't add required attribute to checkboxes because some browsers assume that to mean that it must be checked, which is not what we mean by "required"
+    delete context.atts.required;
+    return context;
+  }
+});
+
+
 
 Schemas = Schemas || {};
 
@@ -14,17 +63,42 @@ Schemas.Kurspreis = new SimpleSchema({
       type: String,
       max: 255
    },
+   'Menge': {
+    type: Boolean,
+    optional: true,
+    label:"Auswahl für Mengenanbage anzeigen?",
+    autoform: {
+      afFieldInput: {
+        type: "togglebutton"
+       }
+     }
+   },
    "Currency":{
       type: String,
       optional: true,
       allowedValues: ["CHF", "BTC", "USD", "EUR"]
-   } 
+   },
+   'Kumulativ': {
+    type: Boolean,
+    optional: true,
+    label:"",
+    autoform: {
+      afFieldInput: {
+        type: "togglebutton"
+       }
+     }
+   }
 });
 
 
 Schemas.hatTeilgenommen = new SimpleSchema({
    "date":{
-      type: Date
+      type: Date,
+      autoform: {
+        afFieldInput: {
+           type: "datetime-local"
+        }
+     }
    },
    "coachName":{
       type: String,
@@ -44,10 +118,20 @@ Schemas.hatTeilgenommen = new SimpleSchema({
 
 Schemas.Kursdaten = new SimpleSchema({
    "Start":{
-      type: Date
+      type: Date,
+      autoform: {
+         afFieldInput: {
+            type: "datetime-local"
+         }
+      }
    },
    "Stop":{
-      type: Date
+     type: Date,
+     autoform: {
+        afFieldInput: {
+           type: "datetime-local"
+        }
+     }
    },
    "Uhrzeit":{
       type: String
@@ -69,8 +153,21 @@ Schemas.rsvps = new SimpleSchema({
       label: "Buchungsdatum"
    },
    "price":{
+       type:Object
+   },
+   "price.value":{
       type: Number,
+      decimal: true,
       label:"Preis"
+   },
+   "price.anzahl":{
+      type: Number,
+      defaultValue:"1",
+      label:"Menge"
+   },
+   "price.Beschreibung":{
+      type: String,
+      label:"Beschreibung"
    },
    "rsvp":{
       type: String,
@@ -84,10 +181,6 @@ Schemas.rsvps = new SimpleSchema({
    "username":{
       type: String,
       label:"User Name"
-   },
-   "Beschreibung":{
-      type: String,
-      label:"Beschreibung"
    },
    "berechtigtZurTeilnahme":{
       type: Number,
@@ -125,16 +218,16 @@ Schemas.KursLehrmittel = new SimpleSchema({
 Schemas.KursBeschreibung = new SimpleSchema({
    "B1":{
       type: String,
-      label: "Kurs Titel (B1)"
+      label: "Kurs Titel"
    },
    "B2":{ 
       type: String,
-      label: "Zusammenfassung (B2)",
-     optional: true
+      label: "Zusammenfassung",
+      optional: true
    },
    "B3":{
       type: String,
-      label: "Zusatzinfo (B3)",
+      label: "Zusatzinfo",
       optional: true
    },
    Beschreibung: {
@@ -142,43 +235,10 @@ Schemas.KursBeschreibung = new SimpleSchema({
         optional: true,
         label:"Beschreibung Homepage",
         autoform: {
-           afFieldInput: {
-              type: "contenteditable"
-           }
+           afFieldInput: {},
+           rows:10
         }
-    },
-   "Lehrmittel":{
-      type: Schemas.KursLehrmittel,
-      optional: true
-   }
-});
-
-Schemas.Kursleiter = new SimpleSchema({
- Adress_id: {
-        type: String,
-        optional: true,
-        label: "Adress Id Europa3000",
-        autoform: {
-           readonly:true
-        },
-        autoValue: function(){
-          var user_id = this.field("Coach.Kursleiter").value;
-          var data = Meteor.users.find({_id: user_id }).fetch();
-          //console.log( data[0].profile.Admin.Adress_id;
-        }
-    },
- Kursleiter:{
-      type: String,
-      label: "Default Coach Name",
-      autoform: {
-         type: "select",
-         options: function () {
-           return Roles.getUsersInRole("trainer").map(function (c) {
-                    return {label: c.username, value: c._id};
-                });
-         }
-      }
-   }
+    }
 });
 
 
@@ -200,24 +260,52 @@ Schemas.Kurs = new SimpleSchema({
         max: 6,
         optional:true
     },
-    Coach: {
-       type:Schemas.Kursleiter
+    Active: {
+       type: Boolean,
+       optional: true,
+       autoform: {
+          type: "togglebutton"
+       },
+       label: "Soll das Angebot angezeigt werden?"
     },
+    Coach:{
+      type: String,
+      label: "Kursleiter",
+      autoform: {
+         type: "select",
+         options: function () {
+           return Roles.getUsersInRole("trainer").map(function (c) {
+                    return {label: c.username, value: c._id};
+                }); 
+         }      
+      }  
+    }, 
     Kursnummer: {
         type: String,
-        label: "Europa 3000 Kursnummer",
-        autoform: {
-           disabled:true
-        }
+        label: "Kursnummer",
+        index: true,
+        unique: true
 
     },
     Created:{
-        type:Date
+        type:Date,
+        label: "Erstellt am: "
     },
     Art: {
         type: String,
         label: "Art des Kurses",
-        allowedValues: ["Kurs", "Training"]
+        autoform: {
+           type: "select",
+           options: function () {
+              return [
+                 {label: "Kurs", value: "Kurs"},
+                 {label: "Training", value: "Training"},
+                 {label: "Leistungsdiagostik", value: "Leistungsdiagostik"},
+                 {label: "Trainingsplanung", value: "Trainingsplanung"}
+              ];
+           }
+       }
+ 
     },
     Beschreibung: {
         type: Schemas.KursBeschreibung,
@@ -245,7 +333,7 @@ Kurs.attachSchema(Schemas.Kurs);
 
 
 
-console.log(Schemas.Kurs);
+// console.log(Schemas.Kurs);
 
 
 
@@ -290,7 +378,6 @@ Template.Kurs.events({
     'click button': function (event, template) {
 
         var price = $('input:radio[name=preis]:checked').val();
-
 	Session.set("chosen_price", price);
 
         if ( price ) {
@@ -302,12 +389,31 @@ Template.Kurs.events({
 
 });
 
+Template.kurs_Preise.events({
+    'click input:radio[name=preis]': function (event, template) {
+        console.log(this);
+
+    },
+    'click input:checkbox[name=preis_kumulativ]': function (event, template) {
+       
+       if($('input:checkbox[name=preis_kumulativ]:checked').val() ){
+          console.log("yeeee we are checked");
+       }else{
+           console.log("nope... we are not");
+       }
+   
+
+    }
+
+});
+
+
 Template.kursLocation.helpers({
 
    location: function(){
       
       if (this.Adress_id){
-        return Locations.findOne({Adress_id: this.Adress_id});
+       // return Locations.findOne({Adress_id: this.Adress_id});
       }
 
    }
@@ -320,7 +426,7 @@ Template.kursLeitung.helpers({
    kursleiter: function(){
 
       if (this.Kurs_Leitung_id){
-        return Kursleiter.findOne({Adress_id: this.Kurs_Leitung_id});
+        //return Kursleiter.findOne({Adress_id: this.Kurs_Leitung_id});
       }  
       
    }

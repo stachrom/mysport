@@ -85,26 +85,9 @@
 </div>
 
 <div class="col-xs-12 col-sm-6 col-md-3">
-   <h2>Preise</h2>
-   <div class="radio radio-primary">
-         {{#each Preise}}
-            {{#if Beschreibung}}
-            <label>
-               {{Beschreibung}}
-               <input type="radio" name="preis" value="{{Value}}">
-               <span class=ripple></span>
-               <span class=circle></span>
-               <span class=check></span>
-               {{Value}}
-               {{#if Waehrung}}
-                  {{Waehrung}}
-               {{else}}
-                   CHF.-
-               {{/if}}
-            </label>
-           {{/if}}
-         {{/each}}
-   </div>
+
+{{> kurs_Preise data=Preise }}
+
 </div>
 </div>
 
@@ -132,6 +115,55 @@
 
 </template>
 
+
+<template name="kurs_Preise">
+   <h2>Preise</h2>
+   <div class="radio radio-primary">
+      {{#each data}}
+         {{#if Beschreibung}}
+            {{#if Kumulativ}}
+
+            {{else}}
+
+               <label>
+                  <input type="radio" name="preis" value="{{Value}}">
+                  <span class=ripple></span>
+                  <span class=circle></span>
+                  <span class=check></span>
+                  {{Beschreibung}} {{Value}}
+                  {{#if Waehrung}}
+                     {{Waehrung}}
+                  {{else}}
+                     CHF.-
+                  {{/if}}
+               </label>
+            {{/if}}
+         {{/if}}
+      {{/each}}
+   </div>
+   <div class="checkbox">
+      {{#each data}}
+         {{#if Beschreibung}}
+            {{#if Kumulativ}}
+               <label>
+                  <input type="checkbox" name="preis_kumulativ" value="{{Value}}" >
+                  <span class="checkbox-material">
+                     <span class="check"></span>
+                  </span>
+                  <span class="checkbox_text">
+                    {{Beschreibung}} {{Value}}
+                    {{#if Waehrung}}
+                       {{Waehrung}}
+                    {{else}}
+                       CHF.-
+                    {{/if}}
+                  </span>
+                 </label>
+            {{/if}}
+         {{/if}}
+      {{/each}}
+   </div>
+</template>
 
 <template name="kursConfirmationModal">
 
