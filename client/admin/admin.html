@@ -34,8 +34,12 @@
             <h4 class="list-group-item-heading">{{Kursnummer}}</h4> 
             <p class="list-group-item-text">
                <a href="#" class="link kursnummer" >{{Titel}}</a>
-               <br>Preis: {{Preis}}.- 
-               <br>Kunde: <a href="#" class="link userid" >{{Username}}</a>
+                <ul>                 
+               {{#each Preis}}
+                  <li>{{Beschreibung}} {{Anzahl}} x {{Value}}.- </li>
+               {{/each}}
+               </ul>
+               Kunde: <a href="#" class="link userid" >{{Username}}</a>
                <div class="row">
                   <div class="col-sm-8">
                      <input type="date" class="form-control">

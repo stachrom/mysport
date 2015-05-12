@@ -1,43 +1,81 @@
-<template name="Bookings">
-  <h1>My Bookings</h1>
-    <table class="table table-striped" >
-        {{> tableheaderyMeineKurse}}
-        {{> tableBodyMeineKurse }}
-    </table>
+<template name="Grid_Booking">
+   <h1>My Bookings</h1>
+   <div class="row">
+      <div class="col-lg-4 col-xs-12 col-md-4">
+         <h2>aktuelle Bestellungen</h2>
+         {{> bookings bookings=this.yes}}
+      </div>
+      <div class="col-xs-12 col-md-4 col-lg-4">
+         <h2>in Rechnung gestellt</h2>         
+         {{> bookings bookings=this.fakturiert}}
+      </div>
+      <div class="col-xs-12 col-md-4 col-lg-4">
+         <h2>Warteliste</h2>        
+         {{> bookings bookings=this.warteliste}}
+      </div>
+</div>
+
 </template>
 
-<template name="tableheaderyMeineKurse">
-    <thead>
-        <tr>
-            <th data-sort="Kursnummer" class="sort">Nr.</th>
-            <th data-sort="Bescheibung.B1" class="sort" >Bechreibung</th>
-            <th>Sportart</th>
-            <th>Preis</th>
-            <th data-sort="Date" class="sort" >Datum</th>
-	    <th >Edit</th>
-        </tr>
-    </thead>
-</template>
 
 
-
- <template name="tableBodyMeineKurse">
-    <tbody>    
-      {{#each this}}
-        <tr>
-            <td class="link">{{Kursnummer}}</td>
-            <td>{{Beschreibung.B1}}</td>
-            <td>{{Tag}}</td>
-            <td>{{Price}}.- SFR </td>
-            <td>{{dateFormat Date format="dddd - DD.MMMM YYYY"}}</td>
-	    <td>
-{{#if $eq rsvp "yes"}}
-<button class="btn btn-default btn-xs" >entfernen</button>
+<template name="bookings">
+   <div class="list-group">
+    {{#each bookings}}
+     <div class="list-group-item">
+        <div class="row-action-primary">
+           {{#if remove }}
+              <i class="mdi-action-shopping-cart"></i>
+           {{else}}
+              <i class="mdi-file-folder"></i>
+           {{/if}}
+        </div>
+        <div class="row-content">
+           <div class="least-content">
+             <time datetime='{{dateFormat Buchungsdatum format="YYYY-MM-DD HH:mm"}}'>
+               {{dateFormat Buchungsdatum format="DD.MMMM.YYYY HH:mm"}}
+             </time> 
+            {{#if remove }}
+            <a href="#" class="remove" data-toggle="tooltip"  title="" data-original-title="remove">
+            <i class="mdi-content-remove-circle-outline mdi-material-red remove" style="font-size: 1.5em;"></i>
+            </a>
+           {{/if}}
+          </div>
+          <div class="list-group-item-heading">
+             {{Kursnummer}} 
+          </div>
+             <p class="list-group-item-text">
+             <a href="#" class="link kursnummer" > {{Titel}}</a>
+             <br>
+               Teilnahmen:  {{hatTeilgenommen}} 
+               {{#if BerechtigtZurTeilnahme }} von {{BerechtigtZurTeilnahme}} {{/if}} <br> 
+               {{#if BerechtigtZurTeilnahmeBis }}
+               gültig bis:   {{dateFormat BerechtigtZurTeilnahmeBis format="DD.MMMM.YYYY"}} <br>
+               {{/if}}
+               <strong>Angebot:</strong>
+               <ul>         
+               {{#each Preis}}
+                  <li>{{Beschreibung}} {{Anzahl}} x {{Value}}.- </li>
+               {{/each}}
+               </ul>
+          </p>
+      </div>
+   </div>
+   <div class="list-group-separator"></div>
 {{else}}
-Anmeldung ist abgeschlossen
-{{/if}}
-</td>        
-	</tr>
-      {{/each}}      
-    </tbody>
-</template> 
+   <div class="list-group-item">
+      <div class="row-action-primary">
+         <i class="mdi-action-announcement"></i>
+      </div>
+      <div class="row-content">
+          <h4 class="list-group-item-heading">keine Buchungen gefunden!</h4>
+          <p class="list-group-item-text">
+    
+          </p>
+      </div>
+   </div>
+   <div class="list-group-separator"></div>
+{{/each}}
+
+</div>
+</template>

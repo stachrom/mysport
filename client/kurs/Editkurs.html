@@ -19,7 +19,7 @@
     <div role="tabpanel" class="tab-pane active" id="Kursbeschreibung">
      <div class="row">
         <div class="col-lg-4">
-           {{> afFormGroup name="Active" }}
+           {{> afFormGroup name="Activ" }}
         </div>
         <div class="col-lg-4">
            {{> afFormGroup name="Kursnummer" }}
@@ -41,6 +41,8 @@
         
              {{> afQuickField name='Created'}}
              {{> afQuickField name='Adress_id'}}
+             {{> afObjectField name='Teilnehmer'}}
+
           </div>
        </div>
     </div>

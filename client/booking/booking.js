@@ -1,29 +1,55 @@
-Template.tableBodyMeineKurse.events({
+Template.bookings.events({
 	
-   'click button': function (event, template) {
-        	
-       var data = Kurs.findOne({"Kursnummer": this.Kursnummer});
+   'click i.remove': function (event, template) {
+      
+      var action = "pull";
+      var id = this._id
+      var options = {
+           rsvp: "no",
+           kursId:  this.kurs_id,
+           bookingId: this.bookingId
+     };
 
-       Kurs.update(
-           { _id : data._id}, 
-           { $pull: 
-               { 'rsvps': {user: Meteor.userId()}}
-           }, 
-           function(error, result){
+           Meteor.call('rsvp', action, options, function (error, result) {
 
-               if ( error === undefined ){
-                   console.log(result);
-               }else{
-                   console.log(error);
+                if (error === undefined) {
+                    clearErrors();
 
-               }
+                    Meteor.setTimeout(function(){
+                        throwError("Die Buchung wurde erfolgreich gelöscht", 201 );
+                        Router.go('/bookings');
+                    }, 300);
 
-           }
-       );
+                    Kursanmeldungen.remove({_id: id});
+
+                  } else {
+                    throwError(error.reason);
+                    console.log(error);
+                }
+        });
+
+
+  
    },
-   'click td.link': function (event, template) {
-
-	Router.go('kurs.show', {_id: this._id});
+   'click .kursnummer': function (event, template) {
+       
+        event.preventDefault();
+	Router.go('kurs.show', {_id: this.kurs_id});
    }
 
 });
+
+Template.bookings.helpers({
+   remove: function(){
+      if (this.Rsvp === "yes" ){
+         return true;
+      }
+   }
+});
+
+
+Template.bookings.rendered=function() {
+  $('[data-toggle="tooltip"]').tooltip({'placement': 'bottom'});
+};
+
+

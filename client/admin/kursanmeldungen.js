@@ -124,19 +124,26 @@ Template.row_action_primary.events({
 
        var kursId =  data.kurs_id;
        var rsvp   =  data.Rsvp;
-       var userId =  data.Kunde;
+       var bookingId =  data.bookingId;
        var anzahlTeilnahmen =  data.BerechtigtZurTeilnahme; 
-       var timestamp = data.BerechtigtZurTeilnahmeBis.getTime();
+       var timestamp = data.BerechtigtZurTeilnahmeBis;
 
-       console.log(timestamp);
+       var action = "set";
+       var options = {
+            kursId: kursId,
+            bookingId: bookingId,
+            rsvp: rsvp,
+            anzahlTeilnahmen: anzahlTeilnahmen,
+            timestamp: timestamp
+       };
 
-           Meteor.call('fakturieren', kursId, rsvp, userId, anzahlTeilnahmen, timestamp, function (error, result) {
+           Meteor.call('rsvp', action, options, function (error, result) {
                 if (error === undefined) {
                     clearErrors();
                     Kursanmeldungen.update({_id: data._id},{$unset:{"changed":""}});
                 } else {
                     throwError(error.reason);
-                    console.log(error.reason);
+                    console.log(error);
                 }
       });
 
@@ -188,16 +195,16 @@ Template.typeahead_user.helpers({
 Template.typeahead_kurse.helpers({
 
    selected: function ( event, suggestion, datasetName ) {
-       Session.setJSON("filter_kursanmeldung.kurs.id", suggestion.id);
+      Session.setJSON("filter_kursanmeldung.kurs.id", suggestion.id);
    },
 
    kurse: function( query, callback) {
+
    var where = {'Beschreibung.B1': {$regex:query,$options:'i'}};
+
    var data = Kurs.find(where, { sort: {"Kursnummer": -1}, limit:10 }).fetch().map(
       function(it){
-
          var Beschreibung = "";
-       
          if(it.Beschreibung && it.Beschreibung.B1){
             Beschreibung = it.Beschreibung.B1;
          }

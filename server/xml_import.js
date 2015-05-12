@@ -120,14 +120,26 @@ var fs = Npm.require('fs'),
                     Kurs_Leitung_id: kurse[i].KURSLEITERNR,
                     Adress_id: kurse[i].KURSORT,
                     Art: kurse[i].KURSART,
-                    Level: {
-                    		Einsteiger: kurse[i].EINSTEIGER,
-                    		Anfaenger: kurse[i].ANFÄNGER,
-                    		Mittlere: kurse[i].MITTLERE,
-                    		Fortgeschrittene: kurse[i].FORTGESCHRITTENE
-                    },
+                    Level: function(kurse, i){
+                           
+                              var Level=[];
+
+                              if(kurse[i].EINSTEIGER = 1){
+                                   Level.push('Einsteiger');
+                              };
+                              if(kurse[i].ANFÄNGER = 1){
+                                   Level.push('Anfänger');
+                              };
+                              if(kurse[i].MITTLERE = 1){
+                                   Level.push('Mittlere');
+                              };
+                              if(kurse[i].FORTGESCHRITTENE = 1){
+                                   Level.push('Fortgeschrittene');
+                              };
+                              return Level;
+                    }(kurse, i),
                     Tag: [],
-                    Public: parseInt( kurse[i].KURS_AKTIV_JN, 10) 
+                    Activ: true
                 };
                 
                 // Dauer des Kurses in h
@@ -148,8 +160,13 @@ var fs = Npm.require('fs'),
 
                         if(kurse[i][prop]){
                             //console.log(moment(kurse[i][prop], "DD.MM.YYYY").isValid());
-                            moment(kurse[i][prop], "DD.MM.YYYY").isValid() === true && data.Kursdaten.Daten.push( {date : new Date(moment(kurse[i][prop]+" "+ kurse[i].UHRZEITVON, "DD.MM.YYYY HH:mm").format("YYYY-MM-DD HH:mm"))});
-                        }
+                            moment(kurse[i][prop], "DD.MM.YYYY").isValid() === true 
+                                   && data.Kursdaten.Daten.push( 
+                                      {date : new Date(
+                                         moment(kurse[i][prop]+" "+ kurse[i].UHRZEITVON, "DD.MM.YYYY HH:mm").format("YYYY-MM-DD HH:mm")
+                                      )}
+                                   );
+                           }
   
                     }
                     if(kurse[i].hasOwnProperty(prop) && prop === 'SPORTART_SCHWIMMEN' && kurse[i][prop] == 1) {

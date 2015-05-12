@@ -35,7 +35,9 @@
    </div>
 
 
-   <button class="btn btn-default btn-flat clearfilter"><i class="mdi-navigation-close"></i>Clear Filter</button>
+   <button class="btn btn-default btn-flat clearfilter">
+      <i class="mdi-navigation-close"></i>Clear Filter
+   </button>
 
 </fieldset>
 </div>
@@ -44,7 +46,11 @@
 <template name="typeahead_user">
    <div class="form-group">
       <label for="typeahead_user" class="control-label">Kunde </label>
-      <input id="typeahead_user" class="form-control typeahead" name="user" type="text" placeholder=" Username" autocomplete="off" spellcheck="off" data-template="typeahead_data_username" data-selected="selected" data-source="meteoruser" />
+      <input id="typeahead_user" class="form-control typeahead" name="user" 
+             type="text" placeholder=" Username" autocomplete="off" spellcheck="off" 
+             data-template="typeahead_data_username" 
+             data-selected="selected" 
+             data-source="meteoruser" />
    </div>
 </template>
 
@@ -55,7 +61,11 @@
 <template name="typeahead_kurse">
    <div class="form-group">
       <label for="typeahead_krse" class="control-label">Kurse</label>
-      <input id="typeahead_kurse" class="form-control typeahead" name="kurse" type="text" placeholder=" Kurse" autocomplete="off" spellcheck="off" data-template="typeahead_data_kurse" data-selected="selected" data-source="kurse" />
+      <input id="typeahead_kurse" class="form-control typeahead" name="kurse" 
+             type="text" placeholder=" Kurse" autocomplete="off" spellcheck="off" 
+             data-template="typeahead_data_kurse" 
+             data-selected="selected" 
+             data-source="kurse" />
    </div>
 </template>
 
@@ -72,7 +82,11 @@
      <div class="list-group-item">
        {{> row_action_primary data=this}}
        <div class="row-content">
-          <div class="least-content"><time datetime='{{dateFormat Buchungsdatum format="YYYY-MM-DD HH:mm"}}'> {{dateFormat Buchungsdatum format="DD.MMMM.YYYY HH:mm"}} </time></div>
+          <div class="least-content">
+             <time datetime='{{dateFormat Buchungsdatum format="YYYY-MM-DD HH:mm"}}'> 
+               {{dateFormat Buchungsdatum format="DD.MMMM.YYYY HH:mm"}} 
+             </time>
+          </div>
    <label class="list-group-item-heading">
       <select class="form-control">
       {{> kursanmeldungen_select_options rsvp=Rsvp}}
@@ -80,8 +94,12 @@
    </label>
              <p class="list-group-item-text">
              <a href="#" class="link kursnummer" >{{Kursnummer}} - {{Titel}}</a>
-             <br>Preis: {{Preis}}.-
-             <br>Kunde: <a href="#" class="link userid" >{{Username}}</a>
+              <ul>                 
+               {{#each Preis}}
+                  <li>{{Beschreibung}} {{Anzahl}} x {{Value}}.- </li>
+               {{/each}}
+               </ul>
+             Kunde: <a href="#" class="link userid" >{{Username}}</a>
              <br>Teilnahmen:  {{hatTeilgenommen}}
              <form class="form-inline">
                 <div class="form-group">

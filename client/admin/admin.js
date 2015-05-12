@@ -32,10 +32,11 @@ Template.new_booking.events({
    'click input[type=checkbox]': function (event, template) {
    
          var anzahl = parseInt( $(event.currentTarget.offsetParent).find('input[type=number]').val(), 10);
-         var timestamp = new Date( $(event.currentTarget.offsetParent).find('input[type=date]').val() ).getTime();
+         var timestamp = new Date( $(event.currentTarget.offsetParent).find('input[type=date]').val() );
          var kursId = this.kurs_id;
          var rsvp= "fakturiert";
          var userId = this.Kunde;
+         var bookingId = this.bookingId;
 
 
          if( ! moment(timestamp).isValid())
@@ -44,7 +45,7 @@ Template.new_booking.events({
          if((Match.test(anzahl, Match.Integer)) && (anzahl >= 1) ){
 
          }else{
-            return throwError("client Geben sie eine Zahl an, welche grösser 1 ist");
+            return throwError("Geben sie eine Zahl an, welche grösser 1 ist");
          }
 
          if ($(event.target).hasClass("checked")){
@@ -55,8 +56,17 @@ Template.new_booking.events({
             var rsvp= "fakturiert";
          }
  
+         var action ="set";
+         var options = {
+            kursId: kursId,
+            bookingId: bookingId,
+            rsvp: rsvp,
+            anzahlTeilnahmen: anzahl,
+            timestamp: timestamp
+         }
 
-         Meteor.call('fakturieren', kursId, rsvp, userId, anzahl, timestamp, function (error, result) {
+
+         Meteor.call('rsvp', action, options, function (error, result) {
                 if (error === undefined) {
                     clearErrors();
                 } else {
@@ -83,9 +93,23 @@ Template.new_booking.events({
       var options ={"rsvp" : "exported"};
 
       Meteor.call('anmeldungenUnwind', options, function(error, result) {
-            if(error === undefined){
-               Session.set("new_bookings", result.buchungen)
-            }
-      });
+
+              // before we populate locale collection lets clean it!
+              Kursanmeldungen.remove({});
+
+              if(error === undefined){
+                 if(result.buchungen){
+                    _.each(result.buchungen, function(value, index){
+                        Kursanmeldungen.insert(value);
+                    });
+                 }
+              }
+
+           });
+
+           return{
+                 new_bookings: Kursanmeldungen.find({})
+           };
+
    }
 });

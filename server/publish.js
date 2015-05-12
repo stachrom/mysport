@@ -2,13 +2,15 @@
 
 Meteor.publish('kurse', function(kurs_id, user_id, tags, art){
         // Find all the Kurse
+       check(arguments, [Match.Any]);
+
        var whereClausel= {};
     
        if ( Match.test(kurs_id, String)){
              whereClausel = {_id:kurs_id};
        }
        if (Match.test(tags, String) && Match.test(art, String) ){
-             whereClausel = {"Public": 1, "Art": art, "Tag": {$in: [tags]}};
+             whereClausel = {"Activ": true, "Art": art, "Tag": {$in: [tags]}};
        }
 
        var data =  Kurse.find( whereClausel, {sort: { "Kursdaten.Start": 1 }}); 
@@ -16,7 +18,8 @@ Meteor.publish('kurse', function(kurs_id, user_id, tags, art){
 });
 
 Meteor.publish("users", function () {
-
+  
+  check(arguments, [Match.Any]);
   var whereClausel = {};
 
   if (Roles.userIsInRole(this.userId, ['admin'])) {
@@ -49,7 +52,8 @@ Meteor.publish("users", function () {
 Meteor.publish("adressen", function (searchString, addressid) {
 
     var whereClause = {};
-    
+    check(arguments, [Match.Any]); 
+  
     //console.log(addressid);
     //console.log(searchString);	
    

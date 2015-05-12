@@ -147,25 +147,54 @@ Schemas.Kursdaten = new SimpleSchema({
 });
 
 
+Schemas.TeilnehmerStatistik = new SimpleSchema({
+   "Max":{
+      type: Number
+   },
+   "Min":{
+     type: Number
+   },
+   "Anzahl.Angemeldet":{
+      type: Number,
+      optional:true,
+      label:"Anmeldungen, welche nicht über Europa 3000 getätigt sind"
+   },
+   "Anzahl.Display":{
+      type: Boolean,
+      optional: true,
+      label:"Anzeigen der Anmeldungen",
+      autoform: {
+      afFieldInput: {
+        type: "togglebutton"
+       }
+     }
+  }
+});
+
+
 Schemas.rsvps = new SimpleSchema({
    "date":{
       type: Date,
       label: "Buchungsdatum"
    },
    "price":{
-       type:Object
+       type:Array,
+       optional: true
    },
-   "price.value":{
+   "price.$": {
+    type: Object
+   },
+   "price.$.Value":{
       type: Number,
       decimal: true,
       label:"Preis"
    },
-   "price.anzahl":{
+   "price.$.Anzahl":{
       type: Number,
       defaultValue:"1",
       label:"Menge"
    },
-   "price.Beschreibung":{
+   "price.$.Beschreibung":{
       type: String,
       label:"Beschreibung"
    },
@@ -181,6 +210,24 @@ Schemas.rsvps = new SimpleSchema({
    "username":{
       type: String,
       label:"User Name"
+   },
+   "Belegnummer":{
+      type: String,
+      label:"Belegnummer"
+   },
+ "beleg.typ":{
+      type: String,
+      label:"Beleg Typ",
+      allowedValues: ["Rechnung", "Offerte", "Lieferschein", "Gutschein", "Auftragsbestätigung" ]
+
+   },
+   "beleg.netto":{
+      type: String,
+      allowedValues: ["Y", "N"]
+   },
+   "bookingId":{
+      type: String,
+      label:"Buchungsnummer"
    },
    "berechtigtZurTeilnahme":{
       type: Number,
@@ -260,7 +307,7 @@ Schemas.Kurs = new SimpleSchema({
         max: 6,
         optional:true
     },
-    Active: {
+    Activ: {
        type: Boolean,
        optional: true,
        autoform: {
@@ -301,6 +348,7 @@ Schemas.Kurs = new SimpleSchema({
                  {label: "Kurs", value: "Kurs"},
                  {label: "Training", value: "Training"},
                  {label: "Leistungsdiagostik", value: "Leistungsdiagostik"},
+                 {label: "Referat", value: "Referat"},
                  {label: "Trainingsplanung", value: "Trainingsplanung"}
               ];
            }
@@ -308,8 +356,12 @@ Schemas.Kurs = new SimpleSchema({
  
     },
     Beschreibung: {
-        type: Schemas.KursBeschreibung,
+        type: Schemas.KursBeschreibung
     },
+    Teilnehmer: {
+        type: Schemas.TeilnehmerStatistik
+    },
+
     Kursdaten: {
         type: Schemas.Kursdaten,
         label: "Kursdaten"
@@ -335,12 +387,6 @@ Kurs.attachSchema(Schemas.Kurs);
 
 // console.log(Schemas.Kurs);
 
-
-
-
-Template.Kurs.AnzahlKurse = function () {
-      return Template[this.postName];
-   };
 
 
 Template.Kurs.rendered=function() {
@@ -373,35 +419,102 @@ Template.Kurs.rendered=function() {
    });
 }
 
+Template.Kurs.helpers({
+
+   anzahlAnmeldungen: function(){
+      var a = this.Teilnehmer.Anzahl.Angemeldet;
+      var b = 0;
+      if (this.rsvps) {     
+           var b = this.rsvps.length;
+     }
+      return (a+b);
+  
+  },
+  isKursleiter: function(){
+
+     var status = false;
+
+     if (this.Coach === Meteor.userId()){
+        return status = true;
+     }
+
+     var result =  _.each(this.Kursdaten.Daten, function(val, key){
+        if(moment(val.date).isSame(new Date(), 'week')){
+           if (val.coachName === Meteor.userId()){
+              return status = true;
+           }
+        }
+     });
+
+     return status
+  }
+
+
+});
+
+
+
+
 
 Template.Kurs.events({
-    'click button': function (event, template) {
+   'click button': function (event, template) {
 
-        var price = $('input:radio[name=preis]:checked').val();
-	Session.set("chosen_price", price);
+        var data = Cart.findOne()||{};
 
-        if ( price ) {
+        if (! jQuery.isEmptyObject(data) ) {
             $('#kursConfirmation').modal('show');
         } else {
-            throwError("you are kindly requested to chose a Price");
+            throwError("Welches Angebot möchten sie Wählen? Entscheiden sie sich für einen Preis.");
         } 
-    }
+   },
+   'click .show-teilnehmerkontrolle': function (event, template) {
+        event.preventDefault();
+console.log(this);
+        $('#teilnehmerKontrolle').modal('show');
+
+
+   }
 
 });
 
 Template.kurs_Preise.events({
     'click input:radio[name=preis]': function (event, template) {
-        console.log(this);
+       /* 
+        * Radiobox selections is a single value
+        * the selected one is added
+        * and the old one is removed from Cart collection
+        * only one Record is present at the time
+        */
 
+       this.inputType = "radio";
+       this.Anzahl = 1;
+       var record = Cart.findOne({"inputType": "radio"})||{};
+
+       if( jQuery.isEmptyObject(record) ){
+          Cart.insert(this);
+       }else{
+          Cart.remove(record._id);
+          Cart.insert(this);
+       }
     },
     'click input:checkbox[name=preis_kumulativ]': function (event, template) {
-       
-       if($('input:checkbox[name=preis_kumulativ]:checked').val() ){
-          console.log("yeeee we are checked");
+       /* 
+        * Checkbox selections are cumulative
+        * check is adding a record
+        * uncheck is removing a record from Cart collection
+        */
+
+       this.inputType = "checkbox";
+       this.Anzahl = 1;
+       var record = Cart.findOne({"inputType": "checkbox", 
+                                "Beschreibung": this.Beschreibung,
+                                "Value": this.Value })||{};
+
+       if(jQuery.isEmptyObject(record) ){
+          Cart.insert(this);
        }else{
-           console.log("nope... we are not");
+          Cart.remove(record._id);
        }
-   
 
     }
 
@@ -411,9 +524,8 @@ Template.kurs_Preise.events({
 Template.kursLocation.helpers({
 
    location: function(){
-      
-      if (this.Adress_id){
-       // return Locations.findOne({Adress_id: this.Adress_id});
+      if (this.Kursort){
+      //var data =  Adresse.findOne({_id: this.Coach});
       }
 
    }
@@ -425,9 +537,12 @@ Template.kursLeitung.helpers({
 
    kursleiter: function(){
 
-      if (this.Kurs_Leitung_id){
-        //return Kursleiter.findOne({Adress_id: this.Kurs_Leitung_id});
-      }  
+      if (this.Coach){
+         var data =  Meteor.users.findOne({_id: this.Coach});
+         //console.log(data.profile.Adresse)
+         return data.profile.Adresse
+     }
+  
       
    }
 
@@ -448,9 +563,18 @@ Template.kurseadminbody.events({
 
 Template.kursConfirmationModal.helpers({
 
-  preis: function(){
-       return Session.get("chosen_price");
-         }
+   Cart_data: function(){
+       return Cart.find();
+   },
+   preisTotal: function(){
+
+      var data = Cart.find().fetch();
+      var sum = _.reduce(data, function(memo, val){ 
+         return memo + (val.Value * val.Anzahl); 
+     }, 0);
+
+     return sum;
+  }
 
 });
 
@@ -458,11 +582,22 @@ Template.kursConfirmationModal.helpers({
 Template.kursConfirmationModal.events({
     'click #purchaseCourse': function (event, template) {
 
-        var kursId = this._id;
-        var rsvp= "yes";
-        var price = $('input:radio[name=preis]:checked').val();
+        var data =  Cart.find().fetch();
+        var val =  _.map(data, function(value, key){ 
+           return {
+              "Beschreibung": value.Beschreibung,
+              "Value": parseFloat(value.Value),
+              "Anzahl": parseInt(value.Anzahl, 10)
+           }
+        });
+        var action = "push";
+        var options = {
+           rsvp: "yes",
+           kursId:  this._id,
+           price: EJSON.stringify(val)
+        };
 
-        Meteor.call('rsvp', kursId, rsvp, price, function (error, result) {
+        Meteor.call('rsvp', action, options, function (error, result) {
 
                 if (error === undefined) {
 
@@ -479,7 +614,12 @@ Template.kursConfirmationModal.events({
                     console.log(error.reason);
                 }
         });
-    }
+    },
+   'change input': function (event, template) {
+      var anzahl = parseInt( $(event.currentTarget).val(), 10);
+      Cart.update({_id: this._id},{$set: {"Anzahl": anzahl}});
+  }
+
 });
 
 

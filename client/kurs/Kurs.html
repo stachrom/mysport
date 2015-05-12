@@ -24,9 +24,10 @@
     {{> kursLocation}}
   </div>
   <div class="col-xs-12 col-sm-9 col-md-6">    
-         <h2> Beschreibung</h2>
+         <h2>Beschreibung</h2>
 
             {{#with Beschreibung}}
+                <p>{{{Beschreibung}}}</p>
                 <p>{{B2}}</p>
                 <p>{{B3}}</p>
                 {{#with Lehrmittel}}
@@ -41,47 +42,52 @@
             {{/with}}
   </div>
   <div class="col-xs-12 col-md-3">
- <h2>Daten</h2>
-            {{#with Kursdaten}}
-                
-             <meta itemprop="startDate" content="{{dateFormat Start format="YYYY-MM-DDTHH:mm"}}">
-            {{> kursDaten}}                
-            <div id="calendar_embeded"> </div>
-            {{/with}}
-</div>
+     <h2>Daten</h2>
+     {{#with Kursdaten}}
+        <meta itemprop="startDate" content="{{dateFormat Start format="YYYY-MM-DDTHH:mm"}}">
+        {{> kursDaten}}                
+         <div id="calendar_embeded"> </div>
+     {{/with}}
+  </div>
 </div>
 
 <div class="row">
   <div class="col-xs-12 col-sm-6 col-md-3">  
   <h2> Teilnehmer</h2>
-            {{#with Teilnehmer}}
+         
                     <dl>
                         <dt>Max</dt>
-                        <dd>{{Max}} Teilnehmer</dd>
+                        <dd>{{Teilnehmer.Max}} Teilnehmer</dd>
 
                         <dt>Min</dt>
-                        <dd>{{Min}} Teilnehmer </dd>
+                        <dd>{{Teilnehmer.Min}} Teilnehmer </dd>
 
-                       {{#with  Anzahl}}
-                        {{#if Display}}
-                        <dt>Angemeldete Teilnehmer:</dt>
-                                <dd>{{Angemeldet}} Personen</dd>
-                                {{/if }}
-                        {{/with}}
+                      
+                        {{#if Teilnehmer.Anzahl.Display}}
+                        <dt>Angemeldet</dt>
+                        <dd>
+			{{#if isKursleiter}}
+			<a href="#" class="btn btn-primary btn-raised btn-sm show-teilnehmerkontrolle" >
+                           Teilnehmer <br>
+                           Kontrolle ({{rsvps.length}})
+                        </a>
+			{{else}}
+				{{anzahlAnmeldungen}} Personen
+			{{/if}}
+			</dd>
+                        {{/if }}
+                     
                      </dl>
-            {{/with}}
+           
   </div>
   <div class="col-xs-12 col-sm-6 col-md-6">
 <h2>Level</h2>
-{{#with Level}}
-<p>ist geeignet für: </p>
-   <ul>     
-      {{#if Anfaenger}}<li>Anfänger</li>  {{/if}}
-      {{#if Einsteiger}}<li>Einsteiger </li> {{/if}}
-      {{#if Mittlere}}<li> Mittlere </li> {{/if}}
-      {{#if Fortgeschrittene}}<li>Fortgeschrittene </li> {{/if}}           
+<p>geeignet für: </p>
+   <ul>
+      {{#each Level}}     
+       <li>{{this}}</li>
+      {{/each}}
    </ul>
- {{/with}}
 </div>
 
 <div class="col-xs-12 col-sm-6 col-md-3">
@@ -93,10 +99,17 @@
 
 
 <div class="row">
-  <div class="col-md-12">
+
+  <div class="col-md-6">
+    {{#if isInRole 'admin'}}
+     <a href="/admin/kurs/{{_id}}"><i class="btn btn-primary btn-fab btn-raised mdi-content-create" ></i></a>
+    {{/if}}
+  </div>
+
+  <div class="col-md-6">
      {{#if currentUser}}
-        <p class="text-right">                                      
-        <button class="btn btn-primary btn-fab btn-raised mdi-navigation-check"></button>
+        <p class="text-right">
+        <button class="btn btn-primary btn-fab btn-raised mdi-action-add-shopping-cart"></button>
         </p>
      {{else}}
         <p class="text-right">
@@ -112,6 +125,7 @@
 
 </article>
 
+{{> teilnehmerKontrolleModal}}
 
 </template>
 
@@ -165,6 +179,61 @@
    </div>
 </template>
 
+
+
+
+
+<template name="teilnehmerKontrolleModal">
+
+<div class="modal fade" id="teilnehmerKontrolle" tabindex="-1" role="dialog" aria-labelledby="teilnehmerKontrolleLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="teilnehmerKontrolleLabel">
+        Teilnehmerliste - {{Beschreibung.B1}}
+        </h4>
+      </div>
+      <div class="modal-body">
+         {{#each rsvps}}
+         <div class="row">
+            <div class="col-sm-2 col-xs-4">{{username}}</div>
+           
+            <div class="col-sm-4 col-xs-4">
+              
+            <div class="togglebutton">
+               <label>
+                  <input type="checkbox" checked="">
+                  <span class="toggle"></span> ist Anwesend
+               </label>
+            </div>
+            </div>
+
+         </div>
+         {{/each}}
+      </div>
+      <div class="modal-footer">
+         <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+         <button type="button" class="btn btn-primary" id="purchaseCourse">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
 <template name="kursConfirmationModal">
 
 <div class="modal fade" id="kursConfirmation" tabindex="-1" role="dialog" aria-labelledby="kursConfirmationLabel" aria-hidden="true">
@@ -180,14 +249,41 @@
         </h4>
       </div>
       <div class="modal-body">
-        {{#with Kursdaten}}
-           {{> kursDaten}}
-        {{/with}}
-        Preis: {{preis}}
+         {{#with Kursdaten}}
+            {{> kursDaten}}
+         {{/with}}
+         <hr>
+         {{#each Cart_data}}
+         <div class="row">
+            <div class="col-sm-4 col-xs-6">{{Beschreibung}}</div>
+            <div class="col-sm-3 col-xs-3">
+              {{Value}}
+              {{#if Currency}}
+                 {{Currency}}
+              {{else}}
+                 CHF
+              {{/if}}
+            </div>
+            <div class="col-sm-1 col-xs-1">x</div>
+            <div class="col-sm-2 col-xs-2">
+               {{#if Menge}}
+               <input type="number" name="Menge" value="1" max="{{Daten.length}}" min="1" style="width:3em">
+               {{else}}1{{/if}}
+            </div>
+           
+         </div>
+         {{/each}}
+         <hr> 
+         <div class="row">
+            <div class="col-sm-4 col-xs-5"><strong>Total:</strong></div>
+            <div class="col-sm-3 col-xs-4"><strong>{{preisTotal}} CHF</strong></div>
+            <div class="col-sm-1 col-xs-1"></div>            
+            <div class="col-sm-2 col-xs-2"></div>
+         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
-        <button type="button" class="btn btn-primary" id="purchaseCourse">OK</button>
+         <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
+         <button type="button" class="btn btn-primary" id="purchaseCourse">OK</button>
       </div>
     </div>
   </div>
