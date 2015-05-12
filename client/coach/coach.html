@@ -1,0 +1,67 @@
+<template name="Coach">
+<h1>Coach Dashboard</h1>
+
+<div class="row">
+      <div class="col-xs-12 col-md-4 col-lg-4">
+         <h2>Deine Kurse</h2>
+         {{> kurseCoach}}
+      </div>
+
+      <div class="col-xs-12 col-md-4 col-lg-4">
+         <h2>Teilnehmer</h2>
+         {{> kursteilnehmer}}
+      </div>
+      <div class="col-xs-12 col-md-4 col-lg-4">
+         <h2>Geleistete Stunden</h2>
+         {{> coachAbrechnung}}
+      </div>
+</div>
+
+
+</template>
+
+<template name="kurseCoach">
+
+
+ <div class="list-group">
+    {{#each this}}
+     <div class="list-group-item">
+        <div class="row-action-primary">         
+              <i class="mdi-file-folder"></i>
+        </div>
+        <div class="row-content">
+           <div class="least-content">
+             <time datetime='{{dateFormat Buchungsdatum format="YYYY-MM-DD HH:mm"}}'>
+               {{dateFormat Kursdaten.Start format="DD.MM"}} -
+               {{dateFormat Kursdaten.Stop format="DD.MM.YYYY"}}
+             </time>
+          </div>
+          <div class="list-group-item-heading">
+             {{Kursnummer}}
+          </div>
+          <p class="list-group-item-text">
+             <strong>{{Beschreibung.B1}}</strong>
+              <br>Teilnehmer:{{AnzahlTeilnehmer}}
+          </p>
+      </div>
+   </div>
+   <div class="list-group-separator"></div>
+{{/each}}
+</div>
+
+</template>
+
+
+<template name="kursteilnehmer">
+
+
+
+</template>
+
+<template name="coachAbrechnung">
+
+
+
+</template>
+
+
