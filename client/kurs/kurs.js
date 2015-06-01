@@ -2,6 +2,9 @@
 // Collections für eine Kurs
 Kurs = new Meteor.Collection("kurse");
 
+// Kurs Sessions
+Session.set("createNewCourse", false);
+
 AutoForm.addInputType('togglebutton', {
   template: 'afTogglebutton',
   valueOut: function () {
@@ -307,6 +310,10 @@ Schemas.Kurs = new SimpleSchema({
         max: 6,
         optional:true
     },
+    Delete: {
+        type: String,
+        optional:true
+    },
     Activ: {
        type: Boolean,
        optional: true,
@@ -383,8 +390,6 @@ Schemas.Kurs = new SimpleSchema({
 Kurs.attachSchema(Schemas.Kurs);
 
 
-
-
 // console.log(Schemas.Kurs);
 
 
@@ -457,7 +462,7 @@ Template.Kurs.helpers({
 
 
 Template.Kurs.events({
-   'click button': function (event, template) {
+    'click button.add-shopping-cart': function (event, template) {
 
         var data = Cart.findOne()||{};
 
@@ -469,10 +474,7 @@ Template.Kurs.events({
    },
    'click .show-teilnehmerkontrolle': function (event, template) {
         event.preventDefault();
-console.log(this);
         $('#teilnehmerKontrolle').modal('show');
-
-
    }
 
 });
@@ -550,11 +552,6 @@ Template.kursLeitung.helpers({
         
 }); 
 
-Template.kurseadminbody.events({
-    'click td': function (event, template) {
-        Router.go('kurs.edit', {_id: this._id});
-    }
-});
 
 
 
@@ -574,6 +571,27 @@ Template.kursConfirmationModal.helpers({
      }, 0);
 
      return sum;
+  },
+  warteliste: function(){
+
+    if ( this && this.Teilnehmer && this.Teilnehmer.Max){
+
+        var max = this.Teilnehmer.Max;
+        var a   = this.Teilnehmer.Anzahl.Angemeldet;
+        var b   = 0;
+        if (this.rsvps) {
+           var b = this.rsvps.length;
+        }
+        var angemeldet = (a+b);
+
+
+        if(angemeldet < max){
+           return false;
+        }else{
+           return true;
+        }
+
+     }
   }
 
 });
@@ -583,16 +601,33 @@ Template.kursConfirmationModal.events({
     'click #purchaseCourse': function (event, template) {
 
         var data =  Cart.find().fetch();
+        var rsvp = "yes";
         var val =  _.map(data, function(value, key){ 
            return {
               "Beschreibung": value.Beschreibung,
               "Value": parseFloat(value.Value),
               "Anzahl": parseInt(value.Anzahl, 10)
            }
-        });
+	});
+        var max = this.Teilnehmer.Max;
+        var a   = this.Teilnehmer.Anzahl.Angemeldet;
+        var b   = 0;
+        if (this.rsvps) {
+           var b = this.rsvps.length;
+        }
+        var angemeldet = (a+b);
+        var kursdaten = this.Kursdaten.Daten;
+    
+
+        if(angemeldet < max){
+           rsvp ="yes";
+        }else{
+           rsvp="warteliste";
+        }
+  
         var action = "push";
         var options = {
-           rsvp: "yes",
+           rsvp: rsvp,
            kursId:  this._id,
            price: EJSON.stringify(val)
         };
@@ -623,4 +658,98 @@ Template.kursConfirmationModal.events({
 });
 
 
+Template.teilnehmerKontrolleModal.helpers({
+  today: function(){
+       return new Date();
+   },
+   checked:function(){
+   console.log(this);
 
+   }
+
+
+});
+
+
+Template.teilnehmerKontrolleModal.events({
+
+   'change [type=checkbox]': function (event, template) {
+      console.log(this);
+      var checked = $(event.target).is(':checked');  
+      var date = $("select[type=date]").val();
+
+      var options = {
+           rsvp: "yes",
+           kursId: template.data._id,
+           timestamp: new Date(date),
+           bookingId: this.bookingId
+      };
+    
+
+      if(checked === true){
+         var action = "hatTeilgenommen";
+         Meteor.call('rsvp', action, options, function (error, result) {
+
+                if (error === undefined) {
+                    //$('#kursConfirmation').modal('hide');
+                } else {
+                    throwError(error.reason);
+                    console.log(error.reason);
+                }
+         });
+
+      }
+      if (checked === false){
+         var action = "hatNichtTeilgenommen";
+         Meteor.call('rsvp', action, options, function (error, result) {
+                if (error === undefined) {
+                    //$('#kursConfirmation').modal('hide');
+                } else {
+                    throwError(error.reason);
+                    console.log(error.reason);
+                }
+         });
+      }
+
+
+   }
+
+
+});
+
+
+Template.editkurs.events({
+
+   'click i.create-new-course': function (event, template) {
+
+         Session.set("createNewCourse", true);
+         AutoForm.resetForm("editkurs");
+
+   }
+
+
+});
+
+
+Template.editkurs.helpers({
+   createNewCourse: function(){
+       console.log(Session.get("createNewCourse"));
+       return Session.get("createNewCourse");
+   },
+   updateInsert:function(){
+      if ( Session.get("createNewCourse")){
+         return "insert";
+      }else{
+         return "update";
+      }
+   },
+   document:function(){
+
+      if ( Session.get("createNewCourse")){
+         return null;
+      }else{
+         return this;
+      }
+
+   } 
+});

@@ -1,9 +1,29 @@
 <template name="editkurs">
 
-<h1>Kurs Bearbeiten</h1>
+<div class="row">
+   <div class="col-lg-6">
+   {{#if createNewCourse}}
+      <h1>neues Angebot erstellen</h1>
+   {{else}}
+      <h1>Angebot bearbeiten</h1>   
+   {{/if}}
+   </div>
+   <div class="col-lg-6">
+      <p class="text-right">
+        {{#if createNewCourse}}
+
+        {{else}}
+         <a href="/admin/kurs/create">
+            <i class="btn btn-primary btn-fab btn-raised mdi-content-add create-new-course" ></i>
+         </a>
+        {{/if}}
+      </p>
+   </div>
+</div>
 
 
- {{#autoForm collection="Kurs" doc=this id="editkurs" type="update"}}
+ {{#autoForm collection="Kurs" doc=document id="editkurs" type=updateInsert }}
+
 
 
 <div role="tabpanel">
@@ -58,10 +78,19 @@
   </div>
 </div>
 
-   <p class="text-right">
-      <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o"></i> Save</button>
-   </p>
+<div class="row">
+   <div class="col-lg-6">
 
+   </div>
+   <div class="col-lg-6">
+      <p class="text-right">
+         {{#if createNewCourse}}
+         <button type="reset" class="btn btn-primary"><i class="fa fa fa-times"></i> Reset</button>
+         {{/if}}
+         <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o"></i> Save</button>
+      </p>
+   </div>
+</div>
   {{/autoForm}}
 
 

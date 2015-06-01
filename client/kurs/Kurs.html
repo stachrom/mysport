@@ -109,7 +109,7 @@
   <div class="col-md-6">
      {{#if currentUser}}
         <p class="text-right">
-        <button class="btn btn-primary btn-fab btn-raised mdi-action-add-shopping-cart"></button>
+        <button class="btn btn-primary btn-fab btn-raised mdi-action-add-shopping-cart add-shopping-cart"></button>
         </p>
      {{else}}
         <p class="text-right">
@@ -195,6 +195,16 @@
         </h4>
       </div>
       <div class="modal-body">
+         <br>
+         <div class="form-group">
+            <label for="teilnahmeAmDatum">Datum</label>
+            <select type="date" id="teilnahmeAmDatum" class="form-control">
+            <option value="{{dateFormat today format="YYYY-MM-DD"}}"  selected >{{dateFormat today format="DD.MM.YYYY"}} </option>
+            {{#each Kursdaten.Daten}}
+            <option value="{{dateFormat date format="YYYY-MM-DD"}}" >{{dateFormat date format="DD.MM.YYYY"}} </option> 
+            {{/each}}
+            </select>
+         </div> 
          {{#each rsvps}}
          <div class="row">
             <div class="col-sm-2 col-xs-4">{{username}}</div>
@@ -203,7 +213,7 @@
               
             <div class="togglebutton">
                <label>
-                  <input type="checkbox" checked="">
+                  <input type="checkbox" checked="{{checked}}" >
                   <span class="toggle"></span> ist Anwesend
                </label>
             </div>
@@ -213,26 +223,13 @@
          {{/each}}
       </div>
       <div class="modal-footer">
-         <button type="button" class="btn btn-default" data-dismiss="modal">Cancle</button>
-         <button type="button" class="btn btn-primary" id="purchaseCourse">OK</button>
+         <button type="button" class="btn btn-primary" id="teilnehmerKontrolleAbgeschlossen">Done</button>
       </div>
     </div>
   </div>
 </div>
 
 </template>
-
-
-
-
-
-
-
-
-
-
-
-
 
 <template name="kursConfirmationModal">
 
@@ -252,6 +249,15 @@
          {{#with Kursdaten}}
             {{> kursDaten}}
          {{/with}}
+
+         {{#if warteliste}}
+            <strong class="text-danger" >
+            Dieser Kurs ist ausgebucht. 
+            <br>
+            Wenn Sie dennoch bestätigen, werden sie auf die Warteliste gesetzt. 
+            </strong>
+         {{/if}}
+
          <hr>
          {{#each Cart_data}}
          <div class="row">

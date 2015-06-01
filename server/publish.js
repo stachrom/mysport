@@ -4,13 +4,13 @@ Meteor.publish('kurse', function(kurs_id, user_id, tags, art){
         // Find all the Kurse
        check(arguments, [Match.Any]);
 
-       var whereClausel= {};
+       var whereClausel= {"Delete": { $exists: false}};
     
        if ( Match.test(kurs_id, String)){
-             whereClausel = {_id:kurs_id};
+             whereClausel = {_id:kurs_id, "Delete": { $exists: false}};
        }
        if (Match.test(tags, String) && Match.test(art, String) ){
-             whereClausel = {"Activ": true, "Art": art, "Tag": {$in: [tags]}};
+             whereClausel = {"Activ": true, "Art": art, "Tag": {$in: [tags]}, "Delete": { $exists: false}};
        }
 
        var data =  Kurse.find( whereClausel, {sort: { "Kursdaten.Start": 1 }}); 

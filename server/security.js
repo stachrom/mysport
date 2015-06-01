@@ -50,11 +50,15 @@ Meteor.users.allow({
 
 Kurse.allow({
    insert: function (userId, kurs) {
+
+      if (Roles.userIsInRole(Meteor.userId(), ['admin', 'trainer']))
+         return true;
+
      return false; // no cowboy inserts -- use createParty method
    },
    update: function (userId, kurs, fields, modifier) {
 
-      if (Roles.userIsInRole(Meteor.userId(), ["admin"]))
+      if (Roles.userIsInRole(Meteor.userId(), ['admin', 'trainer']))
          return true;
 
       for(i=0; kurs.rsvps.length > i; i++){
@@ -81,3 +85,7 @@ Kurse.allow({
     return party.owner === userId && attending(party) === 0;
   }
 });
+
+
+
+

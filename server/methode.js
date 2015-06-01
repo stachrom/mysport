@@ -125,7 +125,7 @@ anmeldungenUnwind: function(options){
         return data;
 
     },
-    rsvp:function(action, options){
+    rsvp: function(action, options){
        check(action, String);
        check(options, {
           rsvp: String,
@@ -144,12 +144,31 @@ anmeldungenUnwind: function(options){
               throw new Meteor.Error(404, "No such course");
        if (! kurs.Activ )
               throw new Meteor.Error(403, "Dieses Angebot ist nicht steht nicht mehr zur Verfügung");
-       if (! _.contains(['push', 'pull', 'set'], action))
+       if (! _.contains(['push', 'pull', 'set', 'hatTeilgenommen', 'hatNichtTeilgenommen'], action))
            throw new Meteor.Error(400, "Invalid Action");
        if (! this.userId)
            throw new Meteor.Error(403, "You must be logged in to RSVP");
        if (! _.contains(['exported', 'fakturiert', 'warteliste', 'yes', 'no'], options.rsvp))
            throw new Meteor.Error(400, "Invalid RSVP");
+
+
+       if (action === "hatTeilgenommen"){
+          var date = moment(options.timestamp).toDate();
+          Kurse.update(
+             {_id: options.kursId, "rsvps.bookingId": options.bookingId},
+             {$push: {"rsvps.$.hatTeilgenommen": date}}
+          );
+       }
+
+       if (action === "hatNichtTeilgenommen"){
+          var date = moment(options.timestamp).toDate();
+          Kurse.update(
+             {_id: options.kursId, "rsvps.bookingId": options.bookingId},
+             {$pull: {"rsvps.$.hatTeilgenommen": date}}
+          );
+       }
+
+
 
 
        if (action === "push"){
@@ -159,6 +178,12 @@ anmeldungenUnwind: function(options){
           }else{
              throw new Meteor.Error(406, "Bitte Wählen sie einen Preis");
           }
+
+          var valid_dates = _.filter(kurs.Kursdaten.Daten, function(val){
+            if (val.date >= new Date ()){
+               return val;
+            }
+          });
 
 
           result = Kurse.update(
@@ -170,11 +195,13 @@ anmeldungenUnwind: function(options){
                          username: loggedInUser.username,
                          rsvp: options.rsvp,
                          price: price,
-                         date: new Date()
-                         }
-                       }
-                   }
-            );
+                         date: new Date(),
+                         berechtigtZurTeilnahmeBis: kurs.Kursdaten.Stop,
+                         berechtigtZurTeilnahme: valid_dates.length
+                        }       
+                     }
+                  }
+               );
 
        }
 
@@ -214,7 +241,6 @@ anmeldungenUnwind: function(options){
                        }
                 }
              );
-
        }
 
        return result;

@@ -1,11 +1,32 @@
 <template name="adminkurse">
 
 
-<table class="table table-striped" >
+   <div class="row">
+      <div class="col-sm-8 col-xs-8">
+         <h1> Administration Kurse</h1>
+         <div class="togglebutton">
+            <label>
+                  <input type="checkbox" checked="{{checked}}" class="show-all-course" >
+                  <span class="toggle"></span>alle Kurse anzeigen
+            </label>
+         </div>
+      </div>
+      <div class="col-sm-3 col-xs-3">
+        
+      </div>
+      <div class="col-sm-1 col-xs-1">
+        <a href="/admin/kurs/create">
+            <i class="btn btn-primary btn-fab btn-raised mdi-content-add create-new-course" ></i>
+         </a>
+      </div>
+   </div>
+
+   <table class="table table-striped" >
         {{> kurseadminheader}}
         {{> kurseadminbody}}
-     </table>
+   </table>
 
+   {{> confirmation}}
 
 </template>
 
@@ -17,12 +38,14 @@
 <template name="kurseadminheader">
     <thead>
         <tr>
-            <th data-sort="Titel" class="sort">Titel</th>
-            <th data-sort="Art" class="sort">Kurs Nummer</th>
+            <th data-sort="Beschreibung.B1" class="sort">Titel</th>
+            <th data-sort="Kursnummer" class="sort">Kurs Nummer</th>
             <th >Type</th>
-            <th data-sort="Zeit" class="sort" >Start</th>
-            <th data-sort="Dauer" class="sort" >Dauer (h)</th>
-            <th data-sort="Daten" class="sort" >Anmeldungen</th>
+            <th data-sort="Art" class="sort" >Art</th>
+            <th data-sort="Kursdaten.Start" class="sort" >Beginn</th>
+            <th >Anmeldungen</th>
+            <th >Anzeige</th>
+            <th >Löschen</th>
         </tr>
     </thead>
 </template>
@@ -31,33 +54,53 @@
     <tbody>
      {{#each this}}
         <tr class="link" >
-            <td>{{Beschreibung.B1}}</td>
+            <td> <a href="/admin/kurs/{{_id}}" >{{Beschreibung.B1}}</a></td>
             <td>{{Kursnummer}}</td>
             <td>{{Tag}}</td>
-            <td>{{Zeit}}</td>
-            <td>{{Dauer}} </td>
+            <td>{{Art}}</td>
+            <td>{{dateFormat Kursdaten.Start format="DD.MM.YYYY"}}</td>
             <td>{{#if rsvps}} 
                 {{rsvps.length}}
                 {{/if}}
+            </td>
+            <td>  
+            <div class="togglebutton">
+               <label>
+                  <input type="checkbox" checked="{{Activ}}" class="activ-passiv">
+                  <span class="toggle"></span>
+               </label>
+            </div>
+            </td>
+            <td> 
+            <p class="text-center"> 
+               <i class="fa fa-times delete"></i>
+            </p>
             </td>
         </tr>
       {{/each}}
     </tbody>
 </template>
 
+<template name="confirmation">
 
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"> {{data.Kursnummer}}    {{data.Beschreibung.B1}} Löschen</h4>
+      </div>
+      <div class="modal-body">
+       
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary confirmation">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-
-
-
-
-
-
-
-
-
-
-
-
+</template>
 
 
