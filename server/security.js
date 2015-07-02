@@ -58,6 +58,27 @@ Kurse.allow({
    },
    update: function (userId, kurs, fields, modifier) {
 
+      if(modifier.$set['Kursdaten.Daten']){
+         modifier.$set['Kursdaten.Daten'] = _.compact(modifier.$set['Kursdaten.Daten']);
+      }
+
+      if(modifier.$set.Preise){
+         modifier.$set.Preise = _.compact(modifier.$set.Preise);
+      }
+
+      if(modifier.$set.rsvps){
+         modifier.$set.rsvps = _.compact(modifier.$set.rsvps);
+         modifier.$set.rsvps =  _.map(modifier.$set.rsvps, function(value, key){ 
+            if(value.price){
+               value.price = _.compact(value.price);
+            }
+            if(value.hatTeilgenommen){
+               value.hatTeilgenommen = _.compact(value.hatTeilgenommen);
+            }
+            return value;
+         });
+      }
+
       if (Roles.userIsInRole(Meteor.userId(), ['admin', 'trainer']))
          return true;
 

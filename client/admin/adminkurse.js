@@ -65,12 +65,13 @@ Template.confirmation.helpers({
 
 
 Template.confirmation.events({
-    'click button.confirmation': function (event, template) {
-    Kurs.update( {_id: Session.get("kurs_id")}, {$set: {"Delete": true} });
+    
+   'click button.confirmation': function (event, template) {
 
-    Session.set("kurs_id", null);
- 
-    $('#confirmationModal').modal('hide');
+       Kurs.update( {_id: Session.get("kurs_id")}, {$set: {"Delete": true} });
+       Session.set("kurs_id", null);
+       $('#confirmationModal').modal('hide');
+
     }
 
 });

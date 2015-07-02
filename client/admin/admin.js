@@ -1,7 +1,34 @@
+Rechnung = new Mongo.Collection(null);
+
 
 Template.new_booking.rendered = function() {
    // $('a.link').tooltip() //initialize all tooltips in this template
 };
+
+
+Template.rechnung.helpers({
+
+   hasData: function(){
+   if (Rechnung.findOne()){
+      var data = Rechnung.findOne();
+      console.log(data);
+      return data;
+   }
+
+   },
+   showWell: function(){
+      if (Rechnung.findOne()){
+        return "well";
+      }
+
+   }
+
+
+
+
+
+});
+
 
 Template.new_user.helpers({
   
@@ -27,7 +54,7 @@ Template.new_user.events({
 });
 
 
-Template.new_booking.events({
+Template.exported.events({
 
    'click input[type=checkbox]': function (event, template) {
    
@@ -37,7 +64,7 @@ Template.new_booking.events({
          var rsvp= "fakturiert";
          var userId = this.Kunde;
          var bookingId = this.bookingId;
-
+         var checked = $(event.target).is(':checked');
 
          if( ! moment(timestamp).isValid())
             return throwError("Geben sie ein End-Datum an");
@@ -48,12 +75,10 @@ Template.new_booking.events({
             return throwError("Geben sie eine Zahl an, welche grösser 1 ist");
          }
 
-         if ($(event.target).hasClass("checked")){
-            $(event.target).removeClass( "checked" );
-            var rsvp= "exported";
-         }else{
-            $(event.target).addClass( "checked" );
+         if (checked){  
             var rsvp= "fakturiert";
+         }else{
+            var rsvp= "exported";
          }
  
          var action ="set";
@@ -64,7 +89,8 @@ Template.new_booking.events({
             anzahlTeilnahmen: anzahl,
             timestamp: timestamp
          }
-
+         
+         console.log(options);
 
          Meteor.call('rsvp', action, options, function (error, result) {
                 if (error === undefined) {
@@ -88,14 +114,14 @@ Template.new_booking.events({
          Router.go('kurs.show', {_id: this.kurs_id});
 
    },
-   'click button.faktura': function (event, template) {
+   'click button.refresh': function (event, template) {
       
       var options ={"rsvp" : "exported"};
 
       Meteor.call('anmeldungenUnwind', options, function(error, result) {
 
               // before we populate locale collection lets clean it!
-              Kursanmeldungen.remove({});
+              Kursanmeldungen.remove({"Rsvp" : "exported"});
 
               if(error === undefined){
                  if(result.buchungen){
@@ -106,10 +132,44 @@ Template.new_booking.events({
               }
 
            });
-
-           return{
-                 new_bookings: Kursanmeldungen.find({})
-           };
-
    }
 });
+
+Template.new_booking.events({
+
+   'click .list-group-item': function (event, template) {
+       var element = $(event.currentTarget);
+       //console.log(this);
+       if(element.hasClass("well")){
+          Rechnung.remove(this._id);
+          element.removeClass("well");
+       }else{
+          Rechnung.insert(this);
+          element.addClass("well");
+       }
+   },
+   'click button.refresh': function (event, template) {
+      
+      var options ={"rsvp" : "yes"};
+
+      Meteor.call('anmeldungenUnwind', options, function(error, result) {
+
+              // before we populate locale collection lets clean it!
+              Kursanmeldungen.remove({"Rsvp" : "yes"});
+              Rechnung.remove({});
+
+              if(error === undefined){
+                 if(result.buchungen){
+                    _.each(result.buchungen, function(value, index){
+                        Kursanmeldungen.insert(value);
+                    });
+                 }
+              }
+
+      });
+   }
+
+
+
+});
+      

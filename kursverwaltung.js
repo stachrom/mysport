@@ -4,6 +4,25 @@ if (Meteor.isClient){
    Meteor.startup(function () {
       /* local collections */
       Kursanmeldungen = new Mongo.Collection(null);
+      Kurse = new Meteor.Collection(null);
+
+      /* fill up the Kurse collection */
+      Meteor.call('kurseUnwinde', function (error, result) {
+              if (error === undefined) {
+                    var count = result.kurse.length; 
+                    for( var i = 0; i < count; i++ ){
+                        Kurse.insert(result.kurse[i]);
+                    }
+
+                    Session.set("kurseFilter", result.filter);
+
+              } else {
+               
+              }
+      });
+
+
+
       /* Einkaufswagen --> Cart */
       Cart = new Mongo.Collection(null);
 

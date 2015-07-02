@@ -6,6 +6,9 @@ var fs = Npm.require('fs'),
 
  Meteor.methods({
     load_xml_data_from_File: function(basepath, xmlFilePath) {
+
+        check(arguments, [Match.Any]);
+
         var future = new Future();
         var loggedInUser = Meteor.user();
 
@@ -28,6 +31,9 @@ var fs = Npm.require('fs'),
         return future.wait();
     },
     kurseImportMongodb:  function(json) {
+        
+        check(arguments, [Match.Any]);
+
         var kurse = {};
 	var loggedInUser = Meteor.user();
 

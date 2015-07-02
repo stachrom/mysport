@@ -17,22 +17,29 @@ Meteor.publish('kurse', function(kurs_id, user_id, tags, art){
        return data;
 });
 
-Meteor.publish("users", function () {
+Meteor.publish("users", function (user_id, action) {
   
   check(arguments, [Match.Any]);
+  //check(user_id, Match.Optional(String));
+  //check(action, Match.Optional(String));
+
   var whereClausel = {};
 
   if (Roles.userIsInRole(this.userId, ['admin'])) {
-     
      whereClausel={};
-
   }else {
-
      whereClausel={_id: this.userId};
-
   }
 
 
+  if (action === "kursleiter" && user_id){
+
+
+        whereClausel={_id: user_id};
+
+
+  }
+console.log(whereClausel);
    data = Meteor.users.find(
              whereClausel,
              {fields:{

@@ -29,13 +29,14 @@ anmeldungenUnwind: function(options){
          return {"statistik": data};
 
    }else{
+/*
       check(options, {
          date : Match.Optional(Date),
-         rsvp : Match.Optional(String),
+         rsvp : Match.OneOf(String, Object),
          user : Match.Optional(Object),
          kurs : Match.Optional(Object)
       });
-
+*/
       var and_1 = _.map(options, function(value, key){ 
 
          if(key === "date"){
@@ -45,7 +46,16 @@ anmeldungenUnwind: function(options){
             return {"_id": value.id};
          } 
          if(key === "rsvp"){
-            return {"rsvps.rsvp": value};
+            if (_.isString(value) ){
+               return {"rsvps.rsvp": value};
+            }
+            if (_.isArray(value) ){
+	      var or = _.map(value, function(status){
+                 return {"rsvps.rsvp": status };
+              });
+              return {$or: or};
+            }
+            return {};
          }
          if(key === "user" && value.id){
             return {"rsvps.user": value.id };
@@ -58,7 +68,11 @@ anmeldungenUnwind: function(options){
             return {"Buchungsdatum": { $gte: options.date, $lte: moment(value).endOf('month').toDate()}};
          }
          if(key === "rsvp"){
-            return {"Rsvp": value};
+            if (_.isString(value) ){
+               return {"Rsvp": value};
+            }
+            return {};
+           
          } 
          if(key === "user" && value.id){
             return {"Kunde": value.id};
@@ -90,26 +104,28 @@ anmeldungenUnwind: function(options){
                        Username:     "$rsvps.username",
                        Beschreibung: "$rsvps.beschreibung",
                        BerechtigtZurTeilnahme:"$rsvps.berechtigtZurTeilnahme",
-                       Buchungsdatum : "$rsvps.date"
+                       Buchungsdatum : "$rsvps.date",
+                       Beleg_id : "$rsvps.beleg.nummer",
                }},
                match2,
                { $sort : { Buchungsdatum: -1 } },
                { $limit : 100 }
-      ]);
-   }
+         ]);
+      }
 
-    return {"buchungen": data};
+      return {"buchungen": data};
 
     },
     kurseUnwinde: function() {
 
-        var data = Kurse.aggregate([
-               { $match : { Activ : true }},
+        var kurse_unwind = Kurse.aggregate([
+               { $match : { Activ : true, "Delete":  { $exists: false} }},
                { $project:
                    {   kurs_id: "$_id",
                        _id:  0,
                        Tag : 1,
                        Art : 1,
+                       Kursnummer : 1,
                        Titel : "$Beschreibung.B1",
                        Dauer : "$Kursdaten.Dauer",
                        Zeit : "$Kursdaten.Uhrzeit",
@@ -121,8 +137,11 @@ anmeldungenUnwind: function(options){
        ]);
           
       //console.log(data); 
-       
-        return data;
+        var tag_distinct = Kurse.distinct("Tag");
+       console.log(tag_distinct);
+        return { kurse: kurse_unwind,
+                 filter: tag_distinct
+               };
 
     },
     rsvp: function(action, options){
@@ -170,7 +189,7 @@ anmeldungenUnwind: function(options){
 
 
 
-
+       // einen Eintrag einfügen
        if (action === "push"){
 
           if(Match.test(options.price, String)){
@@ -204,7 +223,7 @@ anmeldungenUnwind: function(options){
                );
 
        }
-
+       // einen eintrag entfernen
        if (action === "pull"){
          
           result = Kurse.update(
@@ -213,7 +232,7 @@ anmeldungenUnwind: function(options){
           );
 
        }
-
+       // einen Eintrag ersetzen
        if (action === "set"){
 
           if (! Roles.userIsInRole(loggedInUser, ['admin']))

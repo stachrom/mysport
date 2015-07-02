@@ -10,26 +10,21 @@
 
 <template name="filter">
     <section>
-     <div class="btn-group btn-group-justified" data-toggle="buttons">
-  	<label class="btn btn-primary">
-    		<input type="radio" name="options" id="schwimmen" value="Schwimmen" > Schwimmen
-  	</label>
-  	<label class="btn btn-primary">
-    		<input type="radio" name="options" id="laufen" value="Laufen"> Laufen
-  	</label>
-  	<label class="btn btn-primary">
-    		<input type="radio" name="options" id="rafahren" value="Velo">Radfahren
-  	</label>
-        <label class="btn btn-primary">
-                <input type="radio" name="options" id="kraft" value="Kraft">Kraft
-        </label>
-        <label class="btn btn-primary">
-                <input type="radio" name="options" id="diverses" value="Divers">Diverses
-        </label>
-        <label class="btn btn-primary">
-                <input type="radio" name="options" id="alle" value="">Alle Anzeigen
-        </label>
-     </div>
+       <form class="form-inline">
+          <div class="form-group">
+             <input type="text" class="form-control" placeholder="Search">
+             <button class="btn btn-default" type="button">
+                <span class="glyphicon glyphicon-search"></span>
+             </button>
+             <select class="form-control" id="filterSelect">
+                   <option value="" > Wähle einen Filter </option>
+                   {{#each options}}
+                   <option value="{{this}}" {{selected this}}  > {{this}} </option>
+                   {{/each}}
+             </select>       
+             <i class="fa fa-filter"></i>
+          </div>
+        </form>
     </section>
 </template>
 

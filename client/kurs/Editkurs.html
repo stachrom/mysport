@@ -1,18 +1,19 @@
 <template name="editkurs">
 
 <div class="row">
-   <div class="col-lg-6">
+   <div class="col-md-6">
    {{#if createNewCourse}}
       <h1>neues Angebot erstellen</h1>
    {{else}}
       <h1>Angebot bearbeiten</h1>   
    {{/if}}
-   </div>
-   <div class="col-lg-6">
+   </div> 
+   <div class="col-md-6">
       <p class="text-right">
         {{#if createNewCourse}}
 
         {{else}}
+         <a href="/kurs/{{document._id}}" class="btn btn-info btn-fab btn-raised fa fa-eye fa-2x"> </a>
          <a href="/admin/kurs/create">
             <i class="btn btn-primary btn-fab btn-raised mdi-content-add create-new-course" ></i>
          </a>
@@ -31,36 +32,49 @@
   <ul class="list-unstyled list-inline nav_paneltab" role="tablist">
     <li role="presentation" class="active"><a href="#Kursbeschreibung" aria-controls="Kursbeschreibung" role="tab" data-toggle="tab">Beschreibung</a></li>
     <li role="presentation"><a href="#Kurspreise" aria-controls="Kurspreise" role="tab" data-toggle="tab">Preise</a></li>
-    <li role="presentation"><a href="#Kursrsvps" aria-controls="Kursrsvps" role="tab" data-toggle="tab">RSVPS</a></li>
+    <li role="presentation"><a href="#Kursrsvps" aria-controls="Kursrsvps" role="tab" data-toggle="tab">Anmeldungen</a></li>
     <li role="presentation"><a href="#Kursdaten" aria-controls="Kursdaten" role="tab" data-toggle="tab">Daten</a></li>
+    <li role="presentation"><a href="#Buchhaltung" aria-controls="Kursdaten" role="tab" data-toggle="tab">Buchhaltung</a></li>
   </ul>
   <!-- Tab panes -->
   <div class="tab-content">
     <div role="tabpanel" class="tab-pane active" id="Kursbeschreibung">
-     <div class="row">
-        <div class="col-lg-4">
+    <div class="row">
+        <div class="col-md-4">
            {{> afFormGroup name="Activ" }}
         </div>
-        <div class="col-lg-4">
+        <div class="col-md-4">
            {{> afFormGroup name="Kursnummer" }}
-
         </div>
-        <div class="col-lg-4">
-
+        <div class="col-md-4">
            {{> afQuickField name='Art'}}
-
-
       </div>
    </div>   
    <div class="row">
-          <div class="col-lg-6">
+        <div class="col-md-4">
+           {{> afFormGroup name='Coach'}}
+        </div>
+        <div class="col-md-4">
+           {{> afQuickField name='Level'}}
+        </div>
+        <div class="col-md-4">
+           {{> afQuickField name='Tag'}}
+      </div>
+   </div>
+   <div class="row">
+          <div class="col-md-6">
              {{> afObjectField name='Beschreibung'}}
+ <span class="help-block">
+<a href="http://daringfireball.net/projects/markdown/dingus" target="_blank">Markdown Hilfe</a>
+</span>
+             {{> afQuickField name='Annullationsversicherung'}}
+             {{> afQuickField name='AGB'}}
+
           </div>
-          <div class="col-lg-6">
-             {{> afFormGroup name='Coach'}}
-        
-             {{> afQuickField name='Created'}}
-             {{> afQuickField name='Adress_id'}}
+          <div class="col-md-6">
+              {{> afQuickField name='Created'}}
+
+             {{> afQuickField name='Standort'}}
              {{> afObjectField name='Teilnehmer'}}
 
           </div>
@@ -73,21 +87,41 @@
       {{> afArrayField name='rsvps'}}
     </div>
     <div role="tabpanel" class="tab-pane" id="Kursdaten">
-      {{> afObjectField name='Kursdaten'}}
-   </div>
+       <div class="row">
+          <div class="col-md-6">
+             {{> afObjectField name='Kursdaten'}}
+          </div>
+          <div class="col-md-6">  
+             {{> afQuickField name='KursdatenBeschreibung'}}
+             <span class="help-block">
+             Leistungsdiagnostik, Personal Training, Trainingsplanung und Bikfitting 
+             besitzen kein zugewisenes Datum. Der Zeitpunkt für das Training wird zwischen Kunde 
+             und Coach telefonisch oder via Mail vereinbart. 
+             </span>
+         </div>
+       </div>
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="Buchhaltung">
+       <div class="row">
+          <div class="col-md-12">
+             {{> afQuickField name='Buchhaltung'}}
+          </div>
+       </div>
+    </div>
   </div>
 </div>
 
 <div class="row">
-   <div class="col-lg-6">
+   <div class="col-md-6">
 
    </div>
-   <div class="col-lg-6">
+   <div class="col-md-6">
       <p class="text-right">
          {{#if createNewCourse}}
          <button type="reset" class="btn btn-primary"><i class="fa fa fa-times"></i> Reset</button>
          {{/if}}
-         <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o"></i> Save</button>
+         <button type="submit" class="btn btn-primary save-kurs"><i class="fa fa-floppy-o"></i> Save</button>
       </p>
    </div>
 </div>

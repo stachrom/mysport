@@ -3,21 +3,33 @@
    <h1>Admin Dashboard</h1>
    <div class="row">
       <div class="col-xs-12 col-md-4">
-         {{> new_user}}
-      </div>
-      <div class="col-xs-12 col-md-4">
         {{> new_booking}}
       </div>
       <div class="col-xs-12 col-md-4">
-        {{> zeiterfassung}}
+        {{> rechnung}}
+      </div>
+      <div class="col-xs-12 col-md-4">
+        {{> exported}}
+      </div>
+   </div>
+  <div class="row">
+      <div class="col-xs-12 col-md-4">
+         {{> new_user}}
+      </div>
+      <div class="col-xs-12 col-md-4">
+    <h2> Coaches </h2>
+      </div>
+      <div class="col-xs-12 col-md-4">
+     <h2> Abrechnung </h2>
       </div>
    </div>
 </template>
 
-<template name="new_booking">
+
+<template name="exported">
    <div class="list-group">
-      <h2>Fakturierung</h2>
-      {{#each new_bookings }}
+      <h2>Fakturieren</h2>
+      {{#each exported }}
       <div class="list-group-item">
          <div class="row-action-primary togglebutton">
             <label>
@@ -28,13 +40,13 @@
          <div class="row-content">
             <div class="least-content">
                <time datetime='{{dateFormat Buchungsdatum format="YYYY-MM-DD HH:mm"}}'>
-                  {{dateFormat Buchungsdatum format="DD.MMMM.YYYY HH:mm"}} 
+                  {{dateFormat Buchungsdatum format="DD.MMMM.YYYY HH:mm"}}
                </time>
             </div>
-            <h4 class="list-group-item-heading">{{Kursnummer}}</h4> 
+            <h4 class="list-group-item-heading">{{Kursnummer}}</h4>
             <p class="list-group-item-text">
                <a href="#" class="link kursnummer" >{{Titel}}</a>
-                <ul>                 
+                <ul>
                {{#each Preis}}
                   <li>{{Beschreibung}} {{Anzahl}} x {{Value}}.- </li>
                {{/each}}
@@ -69,7 +81,71 @@
       {{/each}}
    </div>
    <p class="text-right">
-      <button class="btn btn-primary btn-fab btn-raised mdi-notification-sync faktura"></button>
+      <button class="btn btn-primary btn-fab btn-raised mdi-notification-sync refresh"></button>
+   </p>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<template name="new_booking">
+   <div class="list-group">
+      <h2>New Bookings</h2>
+      {{#each new_bookings }}
+      <div class="list-group-item">
+         <div class="row-content">
+            <div class="least-content">
+               <time datetime='{{dateFormat Buchungsdatum format="YYYY-MM-DD HH:mm"}}'>
+                  {{dateFormat Buchungsdatum format="DD.MMMM.YYYY HH:mm"}} 
+               </time>
+            </div>
+            <h4 class="list-group-item-heading">{{Kursnummer}}</h4> 
+            <p class="list-group-item-text">
+               <a href="#" class="link kursnummer" >{{Titel}}</a>
+                <ul>                 
+               {{#each Preis}}
+                  <li>{{Beschreibung}} {{Anzahl}} x {{Value}}.- </li>
+               {{/each}}
+               </ul>
+               Kunde: <a href="#" class="link userid" >{{Username}}</a>
+               <br>
+            </p>
+         </div>
+         <div class="list-group-separator"></div>
+      </div>
+      {{else}}
+      <div class="list-group-item">
+         <div class="row-action-primary">
+            <i class="mdi-action-done-all"></i>
+         </div>
+         <div class="row-content">
+            <h4 class="list-group-item-heading">Gratulation!</h4>
+            <p class="list-group-item-text">
+               Keine neuen Buchungen vorhanden<br>
+               Zu den <a href="/admin/kursanmeldungen">fakturierten Anmeldungen</a>
+            </p>
+         </div>
+      </div>
+      <div class="list-group-separator"></div>
+      {{/each}}
+   </div>
+   <p class="text-right">
+      <button class="btn btn-primary btn-fab btn-raised mdi-notification-sync refresh"></button>
    </p>
 </template>
 
@@ -114,9 +190,89 @@
    </div>
 </template>
 
-<template name="zeiterfassung">
-   <h2>Zeiterfassung</h2>
-   <ul>
-      <li>test</li>
-   </ul>
+<template name="rechnung">
+   <h2>Beleg</h2>
+
+
+<div class="list-group {{showWell}}">
+
+
+   {{#if hasData}}
+<div class="form-group">
+    <label class="control-label" for="Beleg-id">Beleg Id</label>
+    <input type="text" class="form-control" id="Beleg-id" value={{hasData.Beleg_id}}>
+</div>
+ <div class="form-group">
+            <label for="select" class="control-label">Zahlungsart</label>
+            
+                <select class="form-control" id="select">
+                    <option>Rechnung</option>
+                    <option>Bar</option>
+                    <option>Mastercard</option>
+                    <option>Visa</option>
+                    <option>Paypal</option>
+                </select>
+ </div>
+
+
+   {{/if}}
+
+{{#each rechnung }}
+      <div class="list-group-item">
+         <div class="row-content">
+            <div class="least-content">
+               <time datetime='{{dateFormat Buchungsdatum format="YYYY-MM-DD HH:mm"}}'>
+                  {{dateFormat Buchungsdatum format="DD.MMMM.YYYY HH:mm"}}
+               </time>
+            </div>
+            <h4 class="list-group-item-heading">{{Kursnummer}}</h4>
+            <p class="list-group-item-text">
+               <a href="#" class="link kursnummer" >{{Titel}}</a>
+                <ul>
+               {{#each Preis}}
+                  <li>{{Beschreibung}} {{Anzahl}} x {{Value}}.- </li>
+               {{/each}}
+               </ul>
+               Kunde: <a href="#" class="link userid" >{{Username}}</a>
+               <br>
+            </p>
+         </div>
+      </div>
+      <div class="list-group-separator"></div>
+{{else}}
+      <div class="list-group-item">
+         <div class="row-action-primary">
+            <i class="mdi-action-done-all"></i>
+         </div>
+         <div class="row-content">
+            <h4 class="list-group-item-heading">Rechnung erstellen</h4>
+            <p class="list-group-item-text">
+               Wählen sie aus den neu Eingetroffenen Bookings die Positionen aus,
+               welche für die manuelle Rechnugnserstellung benötigt werden. 
+            </p>
+         </div>
+      </div>
+      <div class="list-group-separator"></div>
+{{/each}}
+
+     {{#if hasData}}
+      <div class="list-group-item">
+         <div class="form-group">
+            <label for="textArea" class="control-label">Kommentar</label>
+            <div class="col-lg-10">
+                <textarea class="form-control" rows="3" id="textArea"></textarea>
+                <span class="help-block">Zusatztext für die Rechnung</span>
+            </div>
+         </div>
+      </div>
+      {{/if}}
+
+</div>
+ {{#if hasData}}
+
+   <p class="text-right">
+      <button class="btn btn-primary btn-fab btn-raised mdi-action-done buchungen"></button>
+   </p>
+
+{{/if}}
 </template>

@@ -1,35 +1,24 @@
-// Local Collection
-Kurse = new Meteor.Collection(null);
+
 
 // Sessions
 Session.setDefault("kurs_table_sort", {Daten: 1} );
 Session.setDefault("kurs_id", null );
 Session.setDefault("filter", "" );
 
-
-Meteor.startup(function () {
-
-    Meteor.call('kurseUnwinde', function (error, result) { 
-        if (error === undefined) {
-                    var count = result.length;
-                    for( var i = 0; i < count; i++ ){
-                        Kurse.insert(result[i]);
-                    }
-        } else {
-                    console.log(error);
-        }
-    }); 
-});
-
-
 Template.filter.events({
-    'click .btn': function (event, template) {
-    	
-    	var button = event.currentTarget;
-	var value = $(button).find('input:radio').val();
-	Session.set("filter", value);
-	console.log(value);
+
+   'change #filterSelect':function(event, template){
+
+      var e = event.currentTarget;
+      var value = e.options[e.selectedIndex].value;
+          Session.set("filter", value);
+
     }
+
+
+
+
+
 });
 
 
@@ -68,3 +57,20 @@ Template.tableheader.events({
         //console.log(Session.get('kurs_table_sort'));
   }
 });
+
+Template.filter.helpers({
+
+   options: function(){
+    return Session.get("kurseFilter");
+   },
+   selected: function(value){
+    return Session.get("filter") == value? {selected:'selected'}: '';
+   }
+
+
+
+
+})
+
+
+
