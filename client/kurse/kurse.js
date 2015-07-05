@@ -13,7 +13,26 @@ Template.filter.events({
       var value = e.options[e.selectedIndex].value;
           Session.set("filter", value);
 
-    }
+   },
+
+   'keypress .search-query' : function (event, template) {
+
+            var searchString =  template.find(".search-query").value + String.fromCharCode(event.which);
+            var options = {
+                    "searchString": searchString.replace(/(\r\n|\n|\r)/gm,"")
+                };
+                //console.log("key stroke");
+                Session.set('searchString', options.searchString);
+   },
+   'keyup .search-query' : function (event, template) {
+            if (event.which === 8 && Meteor.userId() ) {
+                // capter back space button
+                 Session.set('searchString', template.find(".search-query").value);
+
+                 //console.log(Session.get('searchString'));
+            }
+   },
+
 
 
 
@@ -65,8 +84,10 @@ Template.filter.helpers({
    },
    selected: function(value){
     return Session.get("filter") == value? {selected:'selected'}: '';
+   },
+   searchString: function(){
+    return Session.get("searchString");
    }
-
 
 
 

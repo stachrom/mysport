@@ -141,7 +141,11 @@ Template.Adressen.helpers({
   data: function () {
       var adressen = Adressen.find({}); 
       return adressen;  
+  },
+  searchString: function(){
+    return Session.get("searchString");
   }
+
 
 }); 
 

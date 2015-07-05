@@ -9,25 +9,66 @@ Template.new_booking.rendered = function() {
 Template.rechnung.helpers({
 
    hasData: function(){
-   if (Rechnung.findOne()){
-      var data = Rechnung.findOne();
-      console.log(data);
-      return data;
-   }
-
+      if (Rechnung.findOne()){
+         var data = Rechnung.findOne();
+         _.extend(data, {Beleg_id: Random.id()});
+         return data;
+      }
    },
    showWell: function(){
       if (Rechnung.findOne()){
         return "well";
       }
+   }
+});
+
+Template.rechnung.events({
+
+   'click button.buchungen': function (event, template) {
+       var belegId = template.find("#Beleg-id").value;
+       var kommentar = template.find("#textArea").value;  
+       var zahlungsart = $("#selectZahlungsart option:selected").text();
+
+
+
+    console.log(this);
+
+         var action ="set";
+         var options = {
+            kursId: kursId,
+            bookingId: bookingId,
+            rsvp: rsvp,
+            anzahlTeilnahmen: anzahl,
+            timestamp: timestamp
+         }
+
+         console.log(options);
+
+         /*
+         Meteor.call('rsvp', action, options, function (error, result) {
+                if (error === undefined) {
+                    clearErrors();
+                } else {
+                    throwError(error.reason);
+                    console.log(error);
+                }
+         });
+
+
+
+              Kursanmeldungen.remove({"Rsvp" : "yes"});
+              Rechnung.remove({});
+
+        */           
+
+
 
    }
 
-
-
-
-
 });
+
+
+
 
 
 Template.new_user.helpers({

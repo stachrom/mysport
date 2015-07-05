@@ -162,14 +162,26 @@ anmeldungenUnwind: function(options){
        if (! kurs)
               throw new Meteor.Error(404, "No such course");
        if (! kurs.Activ )
-              throw new Meteor.Error(403, "Dieses Angebot ist nicht steht nicht mehr zur Verfügung");
-       if (! _.contains(['push', 'pull', 'set', 'hatTeilgenommen', 'hatNichtTeilgenommen'], action))
+              throw new Meteor.Error(403, "Dieses Angebot steht nicht mehr zur Verfügung");
+       if (! _.contains(['push', 'pull', 'set', 'export', 'hatTeilgenommen', 'hatNichtTeilgenommen'], action))
            throw new Meteor.Error(400, "Invalid Action");
        if (! this.userId)
            throw new Meteor.Error(403, "You must be logged in to RSVP");
        if (! _.contains(['exported', 'fakturiert', 'warteliste', 'yes', 'no'], options.rsvp))
            throw new Meteor.Error(400, "Invalid RSVP");
 
+
+       if (action === "export"){
+          Kurse.findOne({});
+
+          Kurse.update(
+             {_id: options.kursId, "rsvps.bookingId": options.bookingId},
+             {$push: {"rsvps.$.hatTeilgenommen": date}}
+          );
+
+
+
+       }
 
        if (action === "hatTeilgenommen"){
           var date = moment(options.timestamp).toDate();

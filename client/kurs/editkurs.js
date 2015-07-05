@@ -353,6 +353,15 @@ Schemas.rsvps = new SimpleSchema({
          }
       }
 
+   },
+   "beleg.beschreibung":{
+      type: String,
+      label:"Kommentar zur Rechnung",
+      optional: true,
+      autoform: {
+           afFieldInput: {},
+           rows:5
+      }
    }
 });
 

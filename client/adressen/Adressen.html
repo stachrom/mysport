@@ -4,7 +4,12 @@
 
    <form class="navbar-form navbar-left" role="search">
       <div class="form-group">
-         <input type="text" class="form-control" placeholder="Search" id="search-query" name="search-filter">
+         <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search" id="search-query" name="search-filter" value="{{searchString}}">
+            <div class="input-group-addon">
+               <span class="glyphicon glyphicon-search"></span>
+            </div>
+         </div>
       </div>
    </form> 
 
