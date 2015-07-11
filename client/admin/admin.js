@@ -29,40 +29,49 @@ Template.rechnung.events({
        var kommentar = template.find("#textArea").value;  
        var zahlungsart = $("#selectZahlungsart option:selected").text();
 
+       var buchungen = Rechnung.find({}).fetch();
+       var action ="export";
+       var userId = buchungen[0].Kunde;
 
-
-    console.log(this);
-
-         var action ="set";
-         var options = {
-            kursId: kursId,
-            bookingId: bookingId,
-            rsvp: rsvp,
-            anzahlTeilnahmen: anzahl,
-            timestamp: timestamp
-         }
-
-         console.log(options);
-
-         /*
+       _.each(buchungen, function(value){
+        
+          var options = {
+            kursId: value.kurs_id,
+            bookingId:value.bookingId,
+            rsvp: "readyforexport",
+            belegId: belegId,
+            kommentar: kommentar, 
+            zahlungsart: zahlungsart
+         };
+         // status update für alle buchungen! 
          Meteor.call('rsvp', action, options, function (error, result) {
                 if (error === undefined) {
+
                     clearErrors();
+                    Rechnung.remove(value._id);
+                    Kursanmeldungen.remove({"bookingId" : value.bookingId});
+
+                    if (Rechnung.find().count() === 0 ){ 
+                       Meteor.call('exportAdresse_KursAnmeldungen', userId, belegId, function (error, result) {
+                          if (error === undefined) {
+                             clearErrors();
+                          } else {
+                             throwError(error.reason);
+                             console.log(error);
+                          }
+
+                       });
+                    }
                 } else {
                     throwError(error.reason);
                     console.log(error);
                 }
          });
 
+       });
 
-
-              Kursanmeldungen.remove({"Rsvp" : "yes"});
-              Rechnung.remove({});
-
-        */           
-
-
-
+     
+   
    }
 
 });

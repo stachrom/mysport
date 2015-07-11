@@ -1,4 +1,4 @@
-var fs = Npm.require('fs');
+var fs = Npm.require('fs')
 var Future = Npm.require("fibers/future"); 
 var filePath = '/home/my-sport/export/';
 
@@ -7,49 +7,103 @@ var users = Meteor.users.find({}, {fields: {'_id': 1, 'profile':1}}).fetch();
 
 Meteor.methods({
 
+    exportKursAnmeldungen: function(userId, addressId, belegId){
 
-    exportKursAnmeldungen: function(user, address_id){
+        check(userId, String);
+        check(addressId, String);
+        check(belegId, String);
 
-        var user_id = user._id;
-        var booked_kurse = Kurse.find(
-                {rsvps : {$elemMatch : { user: user_id, rsvp: "yes" } } },
-                {fields: {'Kursnummer': 1, 'rsvps':1}} 
-            ).fetch();
-
+        var buchungen = Kurse.aggregate([
+              { $match : 
+                 { $and: 
+                    [
+                       {"rsvps.beleg.nummer": belegId},
+                       {"rsvps.rsvp": "readyforexport"}
+                    ] 
+                 }
+              },
+              { $unwind : "$rsvps" },
+              { $project:
+                   {   userId: "$rsvps.user",
+                       bookingId: "$rsvps.bookingId",
+                       belegId: "$rsvps.beleg.nummer",
+                       kursnummer: "$Kursnummer",
+                       beleg_netto: "$rsvps.beleg.netto",
+                       beleg_typ: "$rsvps.beleg.typ",
+                       beleg_debitkonto:"$rsvps.beleg.Debitkonto",
+                       beleg_kommentar: "$rsvps.beleg.kommentar",
+                       titel: "$Beschreibung.B1",
+                       preis: "$rsvps.price"
+                   }
+              },
+              { $match :{"belegId": belegId} }
+            ]);
 
         // exportiere nur kursanmeldungen von usern, welche auch tatsächlich eine Anmeldung haben.  
-	if(booked_kurse.length !== 0){
+	if(buchungen.length !== 0){
 
-           var xml = XmlBuilder.create('Kurs_Anmeldungen', {version: '1.0', encoding: 'UTF-8'});
+           var user = Meteor.users.find(userId).fetch();
+           var adressnummer   = user[0].profile.Admin.Adress_id;
+           var netto          = buchungen[0].beleg_netto;
+           var typ            = buchungen[0].beleg_typ;
+           var debitKonto     = buchungen[0].beleg_debitkonto;
+           var kommentarBeleg = buchungen[0].beleg_kommentar || "";
+           var preisTotal     = 0;
+           var XML_Zeilen     = [ ]; 
 
-           for( var i = 0; i < booked_kurse.length; i++){
+           _.each(buchungen, function(v, k){
 
-              var booking = _.filter( booked_kurse[i].rsvps, function(doc){
-                 return (doc.user == user_id && doc.rsvp === "yes" );
-              });
+                XML_Zeilen.push(
+                   { ZEILE: {  TEXT: v.titel, '@TYP': 'Text' } },
+                   { ZEILE: { '@type': 'leer' } }
+                );
 
-              if(booking.length !== 0){
+                Kurse.update({"rsvps": { $elemMatch: { bookingId: v.bookingId } } },
+                   {$set: {"rsvps.$.rsvp": "exported"}}
+                );
 
-                 // console.log(booking);
-                 // mark rsvp as exported. 
- 
-                 Kurse.update( {_id: booked_kurse[i]._id, "rsvps.user": user_id},
-                    {$set: {"rsvps.$.rsvp": "exported"}}
-                 );
+                _.each(v.preis, function(v2, k2){
 
-                 xml.ele('Anmeldung')
-                    .ele('Kursnummer', booked_kurse[i].Kursnummer)
-                    .insertAfter('Adressnummer', address_id )
-                    .insertAfter('Anmeldungsdatum', {FORMAT:"dd.MM.yyyy"}, moment(booking[0].date).format("DD.MM.YYYY") )
-                    .insertAfter('Preis', booking[0].price);
+                   preisTotal += (parseFloat(v2.Value).toFixed(2) * v2.Anzahl);
+
+                   XML_Zeilen.push({ZEILE: {  
+                                      '@TYP': 'manuell', 
+                                       BEZEICHNUNG: v2.Beschreibung,
+                                       MENGE: v2.Anzahl,
+                                       STEUERCODE: v2.Steuercode,
+                                       STEUERSATZ: v2.Steuersatz,
+                                       PREIS: v2.Value,
+                                       KONTO: v2.Konto,
+                                       WGR: v2.WGR
+                                    }
+                                 });
+                  });
+           });
+         
+         
+           if ( kommentarBeleg !== ""){
+             XML_Zeilen.push({ ZEILE: { '@type': 'leer' } });
+             XML_Zeilen.push({ ZEILE: { TEXT : kommentarBeleg, '@TYP': 'Text' } });
+           }
+           var beleg = {
+              europa3000_Belege: {
+                 Beleg:{
+                    '@NETTO': netto,
+                    '@TYP': typ,
+                    ADRESSNUMMER: adressnummer,
+                    BETRAG: preisTotal.toFixed(2),
+                    DATUM: {'#text': moment(new Date()).format("DD.MM.YYYY"), '@FORMAT': 'dd.MM.yyyy'},
+                    DEBIKONTO: debitKonto,
+                    '#list': XML_Zeilen
+                 }
               }
-           }
-           //console.log(booking);
-           if(booking.length !== 0){
-              return xml.end({ pretty: true});
-           }else{
+           };
+
+           var xml = XmlBuilder.create(beleg, {version: '1.0', encoding: 'utf-8'});
+        
+           return xml.end({ pretty: true});
+        }else{
               xml.end();
-           }
         }
      },
      exportAdresse: function(user, adress_id){
@@ -88,31 +142,24 @@ Meteor.methods({
 
         return xml.end({ pretty: true});
      },
-     exportAdresse_KursAnmeldungen: function (user){
+     exportAdresse_KursAnmeldungen: function (userId, belegId){
 
-        var user_id = user._id;
-        var profile = user.profile;
+       check(userId, String);
+       check(belegId, String);
+       //check(arguments, [Match.Any]);
 
-        if (profile && profile.Admin){
-           var id = Adressen.find(
-              { _id: profile.Admin.LinkedTo},
-              { fields: {'Adress_id':1} }
-           ).fetch();
-        }else{
-           var id = {};
-        }
+       var user = Meteor.users.find({_id: userId}, {fields: {'profile': 1}}).fetch();
 
-
-        if (id[0] && id[0].Adress_id) {
-           var Adress_id = id[0].Adress_id;
-        }
-        var booked_kurse = Kurse.find(
-                {rsvps : {$elemMatch : { user: user_id, rsvp: "yes" } } },
-                {fields: {'Kursnummer': 1, 'rsvps':1}}
-            );
+       if (user[0].profile && user[0].profile.Admin && user[0].profile.Admin.Adress_id) {
+           var adress_id = user[0].profile.Admin.Adress_id;
+       }else{
+           throw (new Meteor.Error(500, 'Das Profile ist nicht verlinkt!', err));
+       }
 
 
 //console.log(booked_kurse.count());
+
+        /*
 
         if(booked_kurse.count() !== 0){
         // only call exportAdresse if we have a corresponding booking
@@ -136,11 +183,16 @@ Meteor.methods({
         });
         }
 
-        Meteor.call('exportKursAnmeldungen', user, Adress_id, function (err, result) {
+
+
+        */
+
+
+        Meteor.call('exportKursAnmeldungen', userId, adress_id, belegId, function (err, result) {
 
            if (err === undefined){
 
-              var kursanmeldung = "europa3000kurs_anmeldung_"+ Adress_id +".xml";
+              var kursanmeldung = "europa3000beleg_"+ belegId +".xml";
 
               if(result !== undefined){
 
@@ -158,6 +210,8 @@ Meteor.methods({
                  console.log("*** Error " + err);
            }
         });
+
+
      }
 });
 

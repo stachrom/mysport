@@ -138,7 +138,7 @@ anmeldungenUnwind: function(options){
           
       //console.log(data); 
         var tag_distinct = Kurse.distinct("Tag");
-       console.log(tag_distinct);
+       
         return { kurse: kurse_unwind,
                  filter: tag_distinct
                };
@@ -150,6 +150,9 @@ anmeldungenUnwind: function(options){
           rsvp: String,
           kursId: String,
           bookingId: Match.Optional(String),
+          belegId: Match.Optional(String),
+          kommentar: Match.Optional(String),
+          zahlungsart: Match.Optional(String),
           anzahlTeilnahmen: Match.Optional(Number),
           timestamp: Match.Optional(Date),
           price: Match.Optional(String)
@@ -167,16 +170,24 @@ anmeldungenUnwind: function(options){
            throw new Meteor.Error(400, "Invalid Action");
        if (! this.userId)
            throw new Meteor.Error(403, "You must be logged in to RSVP");
-       if (! _.contains(['exported', 'fakturiert', 'warteliste', 'yes', 'no'], options.rsvp))
+       if (! _.contains(['readyforexport','exported', 'fakturiert', 'warteliste', 'yes', 'no'], options.rsvp))
            throw new Meteor.Error(400, "Invalid RSVP");
 
 
        if (action === "export"){
-          Kurse.findOne({});
+         //console.log(kurs);
 
           Kurse.update(
              {_id: options.kursId, "rsvps.bookingId": options.bookingId},
-             {$push: {"rsvps.$.hatTeilgenommen": date}}
+             {$set: {"rsvps.$.rsvp": options.rsvp,
+                     "rsvps.$.beleg.nummer": options.belegId,
+                     "rsvps.$.beleg.kommentar": options.kommentar,
+                     "rsvps.$.beleg.zahlungsart": options.zahlungsart,
+                     "rsvps.$.beleg.Debitkonto": kurs.Buchhaltung.Debitkonto,
+                     "rsvps.$.beleg.typ": kurs.Buchhaltung.typ,
+                     "rsvps.$.beleg.netto": kurs.Buchhaltung.netto
+                    }
+             }
           );
 
 

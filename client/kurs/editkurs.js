@@ -543,6 +543,7 @@ Schemas.Kurs = new SimpleSchema({
                  {label: "Leistungsdiagostik", value: "Leistungsdiagostik"},
                  {label: "Personaltraining", value: "Personaltraining"},
                  {label: "Bikefitting", value: "Bikefitting"},
+                 {label: "Camps", value: "Camps"},
                  {label: "Trainingsplanung", value: "Trainingsplanung"}
               ];
            }
