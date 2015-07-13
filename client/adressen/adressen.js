@@ -124,18 +124,6 @@ Session.setDefault("searchString", null );
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 Template.Adressen.helpers({
    
   data: function () {

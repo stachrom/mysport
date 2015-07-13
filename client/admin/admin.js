@@ -52,7 +52,7 @@ Template.rechnung.events({
                     Kursanmeldungen.remove({"bookingId" : value.bookingId});
 
                     if (Rechnung.find().count() === 0 ){ 
-                       Meteor.call('exportAdresse_KursAnmeldungen', userId, belegId, function (error, result) {
+                       Meteor.call('xmlExportKursAnmeldungen', userId, belegId, function (error, result) {
                           if (error === undefined) {
                              clearErrors();
                           } else {

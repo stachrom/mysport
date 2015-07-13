@@ -31,11 +31,22 @@ Schemas.Administration = new SimpleSchema({
     },
     Adress_id:{
        type: String,
+       optional: true,
        label: "Europa3000 Adress Id",
        autoform: {
           readonly: true
        }
+    },
+    'export':{
+       type: Boolean,
+       label: "export to Europa 3000",
+       autoform: {
+          afFieldInput: {
+             type: "togglebutton"
+          }
+       }
     }
+
 
 });
 
@@ -43,10 +54,7 @@ Schemas.Administration = new SimpleSchema({
 
 Schemas.Communication = new SimpleSchema({
 
-   LinkedTo: {
-        type: String,
-        label: "Userdaten sind verlinkt mit:",
-
+   "Telg": {
         type: String,
         label: "Telefon Geschäft",
         regEx: /^[0-9 +()]{10,30}$/,
@@ -74,7 +82,12 @@ Schemas.Communication = new SimpleSchema({
         type: String,
         regEx: SimpleSchema.RegEx.Url,
         optional: true
-    }
+    },
+    "Email": {
+        type: String,
+        regEx: SimpleSchema.RegEx.Email,
+        optional: true
+    },
 });
 
 
@@ -83,7 +96,7 @@ Schemas.UserAdresse = new SimpleSchema({
    Anrede: {
         type: String,
         label: "Anrede",
-        regEx: /^[a-zA-Z-]{2,25}$/,
+        regEx: /^[A-Za-z\u00C0-\u017F-]{2,25}$/,
         optional: true
     },
     ZuHandenVon:{type: String,
@@ -94,25 +107,25 @@ Schemas.UserAdresse = new SimpleSchema({
     Name: {
         type: String,
         label: "Name",
-        regEx: /^[a-zA-Z-]{2,25}$/,
+        regEx: /^[A-Za-z\u00C0-\u017F-]{2,25}$/,
         optional: false
     },
     Vorname: {
         type: String,
         label: "Vorname",
-        regEx: /^[a-zA-Z]{2,25}$/,
+        regEx: /^[A-Za-z\u00C0-\u017F]{2,25}$/,
         optional: false
     },
     Strasse : {
         type: String,
         label: "Strasse",
-        regEx: /^[a-z0-9A-z .]{3,30}$/,
+        regEx: /^[A-Z0-9a-z\u00C0-\u017F .]{3,30}$/,
         optional: true
     },
     Ortschaft: {
         type: String,
         label: "Ortschaft",
-        regEx: /^[a-zA-Z-]{2,25}$/,
+        regEx: /^[A-Za-z\u00C0-\u017F]{2,25}$/,
         optional: true
     },
     PLZ: {
@@ -129,7 +142,7 @@ Schemas.Notizen = new SimpleSchema({
         autoform: {
            label:false,
            afFieldInput: {
-              type: "contenteditable"
+              type: "textarea"
            }
         }
     },
@@ -252,6 +265,26 @@ Template.quickForm_typeahead.helpers({
        //console.log( suggestion.adress_id);
        Session.set("Europa3000",{adresse: {id:suggestion.adress_id}});
        Session.set("Adress_id", suggestion.id);
+
+          var data = Adressen.findOne(suggestion.id);
+    
+           if (data !== undefined ){
+             
+              $("input[name='profile.Adresse.Anrede']").val(data.Anrede);
+              $("input[name='profile.Adresse.ZuHandenVon']").val(data.ZuHandenVon);
+              $("input[name='profile.Adresse.Name']").val(data.Name);
+              $("input[name='profile.Adresse.Vorname']").val(data.Vorname);
+              $("input[name='profile.Adresse.Strasse']").val(data.Strasse);
+              $("input[name='profile.Adresse.Ortschaft']").val(data.Ortschaft);
+              $("input[name='profile.Adresse.PLZ']").val(data.Plz);
+              $("input[name='profile.Kommunikation.Telp']").val(data.Telp);
+              $("input[name='profile.Kommunikation.Telg']").val(data.Telg);
+              $("input[name='profile.Kommunikation.Telm']").val(data.Telm);
+              $("input[name='profile.Kommunikation.Fax']").val(data.Fax);
+              $("input[name='profile.GBDatum']").val(data.GBDatum);
+
+           }
+
        //console.log(suggestion);
    },
 
@@ -303,7 +336,7 @@ Template.FormUserAccount.helpers({
                     var data = Session.get("user_id");
       }
       //console.log("data "+ data);
-
+      
       var user = Meteor.users.find( {_id: data }).fetch();
 
       if(Session.get("Asress_id") == "undefined" || Session.get("Adress_id") == null ){
@@ -313,7 +346,7 @@ Template.FormUserAccount.helpers({
 
          $("input[name='profile.Admin.LinkedTo']").val( Session.get("Adress_id"));
          $("input[name='profile.Admin.Adress_id']").val( europa3000.adresse.id);
-
+         
          Session.set("Adress_id", null);
          Session.set("Europa3000", null);
      }

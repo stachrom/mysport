@@ -22,17 +22,19 @@ Template.navigation.events({
             });
         },
         'click .export': function (event) {
-            var users = Meteor.users.find({}, {fields: {'_id': 1, 'profile':1}}).fetch();
-            for( var i = 0; i < users.length; i++){
-               var user = users[i];
-               //console.log(user);
-            Meteor.call('exportAdresse_KursAnmeldungen', user, function (error, result) {
-               //console.log(error);
+          
+            Meteor.call('xmlExportAdressen', function (error, result) {
+               console.log(error);
                console.log(result);
             });
 
-          }
-        }
+       
+        },
+        'click .profileLink': function(event){
+
+          Session.set("user_id", null)
+
+      }
 
 });
 

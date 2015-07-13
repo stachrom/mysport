@@ -106,16 +106,20 @@ Meteor.methods({
               xml.end();
         }
      },
-     exportAdresse: function(user, adress_id){
-      
-        var Adresse = user && user.profile ? user.profile.Adresse : {};
-        var Kommunikation = user && user.profile ? user.profile.Kommunikation : {};
-        var Admin = user && user.profile ? user.profile.Admin : {};
-        var GBDate = user && user.profile ? user.profile.GBDatum : {};
-        // to-do: e-mail account  
- 
+     exportAdressen: function(){
        
         var xml = XmlBuilder.create('Kurs_Adressen', {version: '1.0', encoding: 'UTF-8'});
+
+        var Adressen = Meteor.users.find(
+                             {'profile.Admin.export': true},
+                             {fields: {'profile': 1}}).fetch();
+
+        _.each(Adressen, function(user, k){
+           var Adresse = user && user.profile && user.profile.Adresse ? user.profile.Adresse : {};
+           var Kommunikation = user && user.profile && user.profile.Kommunikation ? user.profile.Kommunikation : {};
+           var Admin = user && user.profile && user.profile.Admin ? user.profile.Admin : {};
+           var GBDate = user && user.profile && user.profile.GBDatum ? moment(user.profile.GBDatum).format("DD.MM.YYYY") : "";
+           var adress_id = Admin.Adress_id || "" ; 
 
             xml.ele('Adressen')
                .ele('ADRESSNUMMER',    adress_id )
@@ -136,13 +140,14 @@ Meteor.methods({
                .insertAfter('CODE4_RES2',      Admin.Res2 || '' )
                .insertAfter('POSTFACH', Adresse.Postfach || '' )
                .insertAfter('EMAILADRESSE', Kommunikation.Email || '' )
-               .insertAfter('GEBURTSDATUM', {FORMAT:"dd.MM.yyyy"}, moment(GBDate).format("DD.MM.YYYY") || '' )
+               .insertAfter('GEBURTSDATUM', {FORMAT:"dd.MM.yyyy"}, GBDate )
                .insertAfter('ESHOPADRESSE', "1" );
-
+        });
 
         return xml.end({ pretty: true});
+
      },
-     exportAdresse_KursAnmeldungen: function (userId, belegId){
+     xmlExportKursAnmeldungen: function (userId, belegId){
 
        check(userId, String);
        check(belegId, String);
@@ -155,50 +160,18 @@ Meteor.methods({
        }else{
            throw (new Meteor.Error(500, 'Das Profile ist nicht verlinkt!', err));
        }
-
-
-//console.log(booked_kurse.count());
-
-        /*
-
-        if(booked_kurse.count() !== 0){
-        // only call exportAdresse if we have a corresponding booking
-        Meteor.call('exportAdresse', user, Adress_id, function (err, result){
-        //console.log(err);           
-
-          if (err === undefined){
-
-              var adresse = "europa3000kurs_adresse_"+ Adress_id +".xml";
-              if(result !== undefined){
-              //console.log(result);
-                 fs.writeFile(filePath + adresse, result, 'utf-8', function(err) {
-                    if (err) {
-                       throw (new Meteor.Error(500, 'Failed to save file.', err));
-                    } else {
-                       console.log('The file ' + adresse + ' was saved to ' + filePath);
-                    }
-                 });
-              }
-           }
-        });
-        }
-
-
-
-        */
-
-
-        Meteor.call('exportKursAnmeldungen', userId, adress_id, belegId, function (err, result) {
+        
+       Meteor.call('exportKursAnmeldungen', userId, adress_id, belegId, function (err, result) {
 
            if (err === undefined){
 
-              var kursanmeldung = "europa3000beleg_"+ belegId +".xml";
+              var kursanmeldung = "europa3000beleg_"+ adress_id +"_"+ Random.id(4)+".xml";
 
               if(result !== undefined){
 
-                 //console.log(result);
+                 var beleg_filePath = filePath + 'belege/';
 
-                 fs.writeFile(filePath + kursanmeldung, result, 'utf-8', function(err) {
+                 fs.writeFile(beleg_filePath + kursanmeldung, result, 'utf-8', function(err) {
                     if (err) {
                        throw (new Meteor.Error(500, 'Failed to save file.', err));
                     } else {
@@ -210,9 +183,31 @@ Meteor.methods({
                  console.log("*** Error " + err);
            }
         });
+     },
 
 
+     xmlExportAdressen: function (){
+
+        Meteor.call('exportAdressen',function (err, result){
+        console.log(err);           
+          if (err === undefined){
+              var adressen = "adressen.xml";
+              if(result !== undefined){
+              //console.log(result);
+                 fs.writeFile(filePath + adressen, result, 'utf-8', function(err) {
+                    if (err) {
+                       throw (new Meteor.Error(500, 'Failed to save file.', err));
+                    } else {
+                       console.log('The file ' + adressen + ' was saved to ' + filePath);
+                    }
+                 });
+              }
+           }
+        });
      }
+
+
+
 });
 
 
@@ -230,7 +225,7 @@ Meteor.setInterval( function() {
 
             var user = users[i];
         
-            Meteor.call('exportAdresse_KursAnmeldungen', user, function (error, result) {
+            Meteor.call('xmlExportAdressen', function (error, result) {
                //console.log(error);
                //console.log(result);
            });
@@ -240,15 +235,4 @@ Meteor.setInterval( function() {
      console.log("export: "+ hours+":"+minutes );
   }
 }, 60*60*1000);
-
-
-
-
-
-/*
-
-
-
-*/
-//console.log(xml);
 

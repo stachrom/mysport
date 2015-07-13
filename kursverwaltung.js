@@ -46,7 +46,7 @@ if (Meteor.isClient){
           * Useful if you are using something 
           * like accounts-meld or want to oauth for api access
           */
-         showOtherLoginServices: false  
+         showOtherLoginServices: true  
       });
    });
 }
