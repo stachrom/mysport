@@ -22,6 +22,31 @@ Template.Users.helpers({
 
 
 
+Template.Users.events({
 
+   'click .download':function(){
+      console.log("export all users");
+      var collectionname = "users";
+      var options = {};
+
+      Meteor.call('downloadExcelFile', collectionname, options, function (error, result) {
+
+                if (error === undefined) {
+                    clearErrors();
+                    throwError("Alle User sind erfolgreich in Excel exportiert worden", 201 );
+                  } else {
+                    throwError(error.reason);
+                    console.log(error.reason);
+                }
+        });
+
+      
+
+   }
+
+
+
+
+});
 
 

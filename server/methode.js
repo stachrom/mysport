@@ -287,6 +287,69 @@ anmeldungenUnwind: function(options){
 
        return result;
 
-    }
+    },
+
+    downloadExcelFile : function(collectionname, options) {
+
+       console.log(collectionname);
+       console.log(options);
+
+
+    var Future = Npm.require('fibers/future');
+    var futureResponse = new Future();
+
+    var excel = new Excel('xlsx'); // Create an excel object  for the file you want (xlsx or xls)
+    var workbook = excel.createWorkbook(); // Create a workbook (equivalent of an excel file)
+    var worksheet = excel.createWorksheet(); // Create a worksheet to be added to the workbook
+    worksheet.writeToCell(0,0, 'Players leaderboard'); // Example : writing to a cell
+    worksheet.mergeCells(0,0,0,1); // Example : merging files
+    worksheet.writeToCell(1,0, 'Name');
+    worksheet.writeToCell(1,1, 'Score');
+
+    worksheet.setColumnProperties([ // Example : setting the width of columns in the file
+      { wch: 20 },
+      { wch: 30 }
+    ]);
+
+    // Example : writing multple rows to file
+    var row = 2;
+    Players.find({}).forEach(function(player) {
+      worksheet.writeToCell(row, 0, player.name);
+      worksheet.writeToCell(row, 1, player.score);
+
+      row++;
+    });
+    
+    workbook.addSheet('MySheet', worksheet); // Add the worksheet to the workbook
+    
+    mkdirp('tmp', Meteor.bindEnvironment(function (err) {
+      if (err) {
+        console.log('Error creating tmp dir', err);
+        futureResponse.throw(err);
+      }
+      else {
+        var uuid = UUID.v4();
+        var filePath = './tmp/' + uuid;
+        workbook.writeToFile(filePath);
+
+        temporaryFiles.importFile(filePath, {
+          filename : uuid,
+          contentType: 'application/octet-stream'
+        }, function(err, file) {
+          if (err) {
+            futureResponse.throw(err);
+          }
+          else {
+            futureResponse.return('/gridfs/temporaryFiles/' + file._id);
+          }
+        });
+      }
+    }));
+
+    return futureResponse.wait();
+  }
+
+
+
 
 });   

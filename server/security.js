@@ -5,7 +5,24 @@
 // is allowed to delete it, and the 'locked' attribute can be
 // set on a document to prevent its accidental deletion.
 
+Meteor.startup(function () {
 
+   temporaryFiles.allow({
+    insert: function (userId, file) {
+      return true;
+    },
+    remove: function (userId, file) {
+      return true;
+    },
+    read: function (userId, file) {
+      return true;
+    },
+    write: function (userId, file, fields) {
+      return true;
+    }
+   });
+
+});
 
 
 
