@@ -39,12 +39,12 @@
 <template name="tableheader">
     <thead>
         <tr>
-            <th data-sort="Titel" class="sort">Titel</th>            
-            <th data-sort="Art" class="sort">Bezeichnung</th>
-            <th >Type</th>
-            <th data-sort="Zeit" class="sort" >Start</th>
-            <th data-sort="Dauer" class="sort" >Dauer (h)</th>
-            <th data-sort="Daten" class="sort" >Datum</th>
+            <th data-sort="Beschreibung.B1" class="sort">Titel</th>            
+            <th data-sort="Art" class="sort">Typ</th>
+           
+            <th data-sort="Standort" class="sort" >Ort</th>
+            <th data-sort="Kursdaten.Start" class="sort" >von</th>
+            <th data-sort="Kursdaten.Stop" class="sort" >bis</th>
         </tr>
     </thead>
 </template>
@@ -53,12 +53,12 @@
     <tbody>    
       {{#each this}}
         <tr class="link" >
-            <td>{{Titel}}</td>            
+            <td>{{Beschreibung.B1}}</td>            
             <td>{{Art}}</td>
-            <td>{{Tag}}</td>
-            <td>{{Zeit}}</td>
-            <td>{{Dauer}} </td>
-            <td>{{dateFormat Daten format="dddd - DD.MMMM.YYYY"}}</td>
+          
+            <td>{{Standort}}</td>
+            <td>{{dateFormat Kursdaten.Start format="DD.MMMM.YYYY"}}</td>
+            <td>{{dateFormat Kursdaten.Stop format="DD.MMMM.YYYY"}}</td>
         </tr>
       {{/each}}      
     </tbody>

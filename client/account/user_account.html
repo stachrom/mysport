@@ -1,4 +1,5 @@
 
+
 <template name="Account">
    <div class="row">
       <div class="col-lg-12">
@@ -13,7 +14,7 @@
    <div class=" well">
     {{#autoForm collection=users id="signupForm"  doc=editingDoc  type="update"}}
     <fieldset>
-   <legend>User Account {{username}}</legend>
+   <legend>Your Account ({{accountTyp}}) </legend>
        <div class="row">
          <div class="col-lg-4"> 
             {{> afObjectField name='profile.Adresse'}}
@@ -23,9 +24,11 @@
          </div>
          <div class="col-lg-4">
             {{> afQuickField name='profile.GBDatum'}}
+            {{> afQuickField name='username'}}
          {{#if isInRole 'admin'}}
             {{> afObjectField name='profile.Admin'}}
          {{/if}}
+
          </div>
        </div>
       <div class="row">

@@ -56,17 +56,18 @@
 
 <div class="row">
    <div class="col-xs-12 col-sm-6 col-md-3">  
+   {{#if Teilnehmer.Anzahl.Display}}      
       <h2>Teilnehmer</h2>
       <dl class="dl-horizontal teilnehmer">
          <dt>Max</dt>
          <dd>{{Teilnehmer.Max}} Teilnehmer</dd>
          <dt>Min</dt>
          <dd>{{Teilnehmer.Min}} Teilnehmer </dd>             
-         {{#if Teilnehmer.Anzahl.Display}}
          <dt>Angemeldet</dt>
          <dd>{{anzahlAnmeldungen}} Personen</dd>
-        {{/if }}
       </dl>
+   {{/if }}
+
       {{#if isKursleiter}}
        <a href="#" class="btn btn-primary btn-raised btn-sm show-teilnehmerkontrolle" >
           Teilnehmer <br>

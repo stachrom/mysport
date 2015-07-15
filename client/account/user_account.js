@@ -6,6 +6,7 @@ AutoForm.addInputType('typeahead', {
   template: 'quickForm_typeahead'
 });
 
+
 Schemas.Administration = new SimpleSchema({
     Type: {
         allowedValues: [1, 2, 3],        
@@ -86,8 +87,26 @@ Schemas.Communication = new SimpleSchema({
     "Email": {
         type: String,
         regEx: SimpleSchema.RegEx.Email,
-        optional: true
-    },
+        optional: true,
+        autoform: {
+           defaultValue: function(){
+              var userId = Meteor.userId();
+              if(Session.get("user_id") ){
+                 var userId = Session.get("user_id");
+              }
+
+              var user = Meteor.users.findOne(userId);
+            if (user){
+              if(user.services && user.services.google){
+                 return user.services.google.email;
+              }
+              if(user.emails){
+                 return user.emails[0].address;
+              }
+            }
+           }
+       }
+    }
 });
 
 
@@ -125,7 +144,7 @@ Schemas.UserAdresse = new SimpleSchema({
     Ortschaft: {
         type: String,
         label: "Ortschaft",
-        regEx: /^[A-Za-z\u00C0-\u017F]{2,25}$/,
+        regEx: /^[A-Za-z.,\u00C0-\u017F ]{2,25}$/,
         optional: true
     },
     PLZ: {
@@ -214,7 +233,42 @@ Schemas.User = new SimpleSchema({
     },
     username: {
         type: String,
-        regEx: /^[a-z0-9A-Z_]{3,15}$/
+        regEx: /^[a-z0-9A-Z_ ]{3,15}$/,
+        unique: true,
+        label: "Username (must be unique)",
+        autoform: {
+           defaultValue:function(){
+
+              var userId = Meteor.userId();
+              if(Session.get("user_id") ){
+                 var userId = Session.get("user_id");
+              }
+
+              var user = Meteor.users.findOne(userId);
+            if(user){
+              if(user.services && user.services.google){
+                 return user.services.google.name;
+              }
+              if(user.services && user.services.facebook){
+                 return user.services.facebook.name;
+              }
+              if(user.services && user.services.twitter){
+                 return user.services.twitter.screenName;
+              }
+            }
+           }
+        },
+        custom: function () {
+           if (Meteor.isClient && this.isSet) {
+              Meteor.call("accountsIsUsernameAvailable", this.value, function (error, result) {
+                 if (!result) {
+                    Meteor.users.simpleSchema().namedContext("createUserForm").addInvalidKeys(
+                       [{name: "username", type: "notUnique"}]
+                    );
+                 }
+              });
+           }
+        }
     },
     emails: {
         type: [Object],
@@ -261,31 +315,38 @@ Template.quickForm_typeahead.helpers({
 
    selected: function ( event, suggestion, datasetName ) {
 
-       // set the id from the europa3000 Adresse
-       //console.log( suggestion.adress_id);
-       Session.set("Europa3000",{adresse: {id:suggestion.adress_id}});
-       Session.set("Adress_id", suggestion.id);
+      var userId = Meteor.userId();
 
-          var data = Adressen.findOne(suggestion.id);
-    
-           if (data !== undefined ){
-             
-              $("input[name='profile.Adresse.Anrede']").val(data.Anrede);
-              $("input[name='profile.Adresse.ZuHandenVon']").val(data.ZuHandenVon);
-              $("input[name='profile.Adresse.Name']").val(data.Name);
-              $("input[name='profile.Adresse.Vorname']").val(data.Vorname);
-              $("input[name='profile.Adresse.Strasse']").val(data.Strasse);
-              $("input[name='profile.Adresse.Ortschaft']").val(data.Ortschaft);
-              $("input[name='profile.Adresse.PLZ']").val(data.Plz);
-              $("input[name='profile.Kommunikation.Telp']").val(data.Telp);
-              $("input[name='profile.Kommunikation.Telg']").val(data.Telg);
-              $("input[name='profile.Kommunikation.Telm']").val(data.Telm);
-              $("input[name='profile.Kommunikation.Fax']").val(data.Fax);
-              $("input[name='profile.GBDatum']").val(data.GBDatum);
+      Session.set("Europa3000",{adresse: {id:suggestion.adress_id}});
+      Session.set("Adress_id", suggestion.id);
+
+       if(Session.get("user_id")){
+         var userId = Session.get("user_id");
+       }
+
+       var data = Adressen.findOne(suggestion.id);
+
+       if (data !== undefined ){
+
+          Meteor.users.update(userId,  
+                                  {$set:{
+                                   "profile.Adresse.Anrede": data.Anrede,
+                                   "profile.Adresse.ZuHandenVon": data.ZuHandenVon,                        
+                                   "profile.Adresse.Name": data.Name,
+                                   "profile.Adresse.Vorname": data.Vorname,
+                                   "profile.Adresse.Strasse": data.Strasse,
+                                   "profile.Adresse.Ortschaft": data.Ortschaft,
+                                   "profile.Adresse.PLZ": data.Plz,
+                                   "profile.Kommunikation.Telp": data.Telp,
+                                   "profile.Kommunikation.Telg": data.Telg,
+                                   "profile.Kommunikation.Telm": data.Telm,
+                                   "profile.Kommunikation.Fax": data.Fax,
+                                   "profile.GBDatum": data.GBDatum
+                                   }
+                                 });
 
            }
 
-       //console.log(suggestion);
    },
 
    adressen: function( query, callback) {
@@ -324,29 +385,51 @@ Template.FormUserAccount.helpers({
    userSchema: function () {
       return Schema.User;
    },
-   editingDoc: function editingDocHelper() {
-     
+   accountTyp: function () {
 
-      //console.log("User_id "+Session.get("user_id"));
-      //console.log("Adress_id "+Session.get("Adress_id"));
+      var userId = Meteor.userId();
 
-      if(Session.get("user_id") == "undefined" || Session.get("user_id") == null ){
-                    var data = Meteor.userId();
-      }else{
-                    var data = Session.get("user_id");
+      if(Session.get("user_id") ){
+        var userId = Session.get("user_id");
       }
-      //console.log("data "+ data);
-      
-      var user = Meteor.users.find( {_id: data }).fetch();
+
+     var user = Meteor.users.findOne(userId);
+     
+     if(user){
+              if( user.services && user.services.google){
+                 return "Google";
+              }
+              if(user.services && user.services.facebook){
+                 return "Facebook";
+              }
+              if(user.services && user.services.twitter){
+                 return "Twitter";
+              }
+              if(user.services && user.services.password){
+                 return "Standard";
+              }
+     }
+     
+   },
+   editingDoc: function editingDocHelper() { 
+
+      var userId = Meteor.userId();
+
+      if(Session.get("user_id") ){
+        var userId = Session.get("user_id");
+      }
+
+      var user = Meteor.users.find( {_id: userId }).fetch();
 
       if(Session.get("Asress_id") == "undefined" || Session.get("Adress_id") == null ){
          return user[0];
-      }else{            
-         var europa3000 = Session.get("Europa3000");
+      }else{
 
-         $("input[name='profile.Admin.LinkedTo']").val( Session.get("Adress_id"));
-         $("input[name='profile.Admin.Adress_id']").val( europa3000.adresse.id);
-         
+         var Europa3000 = Session.get("Europa3000");
+
+         $("input[name='profile.Admin.LinkedTo']").val(  Session.get("Adress_id"));
+         $("input[name='profile.Admin.Adress_id']").val( Europa3000.adresse.id);
+
          Session.set("Adress_id", null);
          Session.set("Europa3000", null);
      }

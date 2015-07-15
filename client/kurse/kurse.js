@@ -43,7 +43,7 @@ Template.filter.events({
 
 Template.tablebody.events({
     'click td': function (event, template) {
-        Router.go('kurs.show', {_id: this.kurs_id});
+        Router.go('kurs.show', {_id: this._id});
     }
 });
 
