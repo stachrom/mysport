@@ -5,7 +5,12 @@ Meteor.publish('kurse', function(kurs_id, user_id, tags, art){
        check(arguments, [Match.Any]);
 
        var whereClausel= {"Delete": { $exists: false}};
-    
+       var fields={rsvps: 0};
+
+       if (Roles.userIsInRole(this.userId, ['admin', 'trainer'])) {
+          fields={};
+       }
+
        if ( Match.test(kurs_id, String)){
              whereClausel = {_id:kurs_id, "Delete": { $exists: false}};
        }
@@ -13,7 +18,7 @@ Meteor.publish('kurse', function(kurs_id, user_id, tags, art){
              whereClausel = {"Activ": true, "Art": art, "Tag": {$in: [tags]}, "Delete": { $exists: false}};
        }
 
-       var data =  Kurse.find( whereClausel, {sort: { "Kursdaten.Start": 1 }}); 
+       var data =  Kurse.find( whereClausel, {fields: fields, sort: { "Kursdaten.Start": 1 }}); 
        return data;
 });
 

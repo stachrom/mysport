@@ -41,7 +41,8 @@ Template.rechnung.events({
             rsvp: "readyforexport",
             belegId: belegId,
             kommentar: kommentar, 
-            zahlungsart: zahlungsart
+            zahlungsart: zahlungsart,
+            user: userId
          };
          // status update für alle buchungen! 
          Meteor.call('rsvp', action, options, function (error, result) {

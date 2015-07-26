@@ -19,17 +19,16 @@ temporaryFiles = new FileCollection('temporaryFiles',
 );
 
 
-
-
-
-
-
 if (Meteor.isClient){
    
    Meteor.startup(function () {
-      /* local collections */
+
+      /* locas collections */
       Kursanmeldungen = new Mongo.Collection(null);
       Kurse = new Meteor.Collection(null);
+
+      /* Einkaufswagen --> Cart */
+      Cart = new Mongo.Collection(null);
 
       /* fill up the Kurse collection */
       Meteor.call('kurseUnwinde', function (error, result) {
@@ -38,18 +37,20 @@ if (Meteor.isClient){
                     for( var i = 0; i < count; i++ ){
                         Kurse.insert(result.kurse[i]);
                     }
-
-                    Session.set("kurseFilter", result.filter);
-
-              } else {
-               
               }
       });
 
+      var fields = [
+                    "Tag",
+                    "Level"
+                  ];
+      Meteor.call('kurse_distinct', fields, function (error, result) {
+              if (error === undefined) {
+               Session.set("kurseFilterTag", result.Tag);
+               Session.set("kurseFilterLevel", result.Level);
+              }
+      });
 
-
-      /* Einkaufswagen --> Cart */
-      Cart = new Mongo.Collection(null);
 
       TAPi18n.setLanguage("de");
       T9n.language = "de";

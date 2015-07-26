@@ -137,11 +137,21 @@ anmeldungenUnwind: function(options){
        ]);
           
       //console.log(data); 
-        var tag_distinct = Kurse.distinct("Tag");
-       
-        return { kurse: kurse_unwind,
-                 filter: tag_distinct
-               };
+        return { kurse: kurse_unwind };
+
+    },
+    kurse_distinct: function(fields) {
+       check(fields, [String]);
+
+       var results = {};
+ 
+       _.each(fields, function(field, key){
+          var obj = {};
+          obj[field] = Kurse.distinct(field);
+          _.extend(results, obj);
+       });
+
+       return results;
 
     },
     rsvp: function(action, options){
@@ -149,6 +159,7 @@ anmeldungenUnwind: function(options){
        check(options, {
           rsvp: String,
           kursId: String,
+          user: Match.Optional(String),
           bookingId: Match.Optional(String),
           belegId: Match.Optional(String),
           kommentar: Match.Optional(String),
@@ -175,11 +186,16 @@ anmeldungenUnwind: function(options){
 
 
        if (action === "export"){
-         //console.log(kurs);
-
-          Kurse.update(
-             {_id: options.kursId, "rsvps.bookingId": options.bookingId},
-             {$set: {"rsvps.$.rsvp": options.rsvp,
+         
+          var isUserLinked = Meteor.users.find({_id: options.user},
+                            {fields: {'profile.Admin.LinkedTo': 1}}
+                           ).fetch();
+     
+          if(isUserLinked[0].profile && isUserLinked[0].profile.Admin && isUserLinked[0].profile.Admin.LinkedTo){
+          
+             Kurse.update(
+                {_id: options.kursId, "rsvps.bookingId": options.bookingId},
+                {$set: {"rsvps.$.rsvp": options.rsvp,
                      "rsvps.$.beleg.nummer": options.belegId,
                      "rsvps.$.beleg.kommentar": options.kommentar,
                      "rsvps.$.beleg.zahlungsart": options.zahlungsart,
@@ -187,12 +203,14 @@ anmeldungenUnwind: function(options){
                      "rsvps.$.beleg.typ": kurs.Buchhaltung.typ,
                      "rsvps.$.beleg.netto": kurs.Buchhaltung.netto
                     }
-             }
-          );
-
-
+                }
+             );
+          }else{
+             throw new Meteor.Error(400, "Das Profiel ist noch nicht verlinkt! Nach der Verlinkung ist ein XML Export möglich.");
+          }
 
        }
+       
 
        if (action === "hatTeilgenommen"){
           var date = moment(options.timestamp).toDate();
@@ -295,59 +313,60 @@ anmeldungenUnwind: function(options){
        console.log(options);
 
 
-    var Future = Npm.require('fibers/future');
-    var futureResponse = new Future();
+       // todoo write the whol export functions for different collections
 
-    var excel = new Excel('xlsx'); // Create an excel object  for the file you want (xlsx or xls)
-    var workbook = excel.createWorkbook(); // Create a workbook (equivalent of an excel file)
-    var worksheet = excel.createWorksheet(); // Create a worksheet to be added to the workbook
-    worksheet.writeToCell(0,0, 'Players leaderboard'); // Example : writing to a cell
-    worksheet.mergeCells(0,0,0,1); // Example : merging files
-    worksheet.writeToCell(1,0, 'Name');
-    worksheet.writeToCell(1,1, 'Score');
 
-    worksheet.setColumnProperties([ // Example : setting the width of columns in the file
-      { wch: 20 },
-      { wch: 30 }
-    ]);
+       var Future = Npm.require('fibers/future');
+       var futureResponse = new Future();
 
-    // Example : writing multple rows to file
-    var row = 2;
-    Players.find({}).forEach(function(player) {
-      worksheet.writeToCell(row, 0, player.name);
-      worksheet.writeToCell(row, 1, player.score);
+       var excel = new Excel('xlsx'); // Create an excel object  for the file you want (xlsx or xls)
+       var workbook = excel.createWorkbook(); // Create a workbook (equivalent of an excel file)
+       var worksheet = excel.createWorksheet(); // Create a worksheet to be added to the workbook
+       worksheet.writeToCell(0,0, 'Players leaderboard'); // Example : writing to a cell
+       worksheet.mergeCells(0,0,0,1); // Example : merging files
+       worksheet.writeToCell(1,0, 'Name');
+       worksheet.writeToCell(1,1, 'Score');
 
-      row++;
-    });
-    
-    workbook.addSheet('MySheet', worksheet); // Add the worksheet to the workbook
-    
-    mkdirp('tmp', Meteor.bindEnvironment(function (err) {
-      if (err) {
-        console.log('Error creating tmp dir', err);
-        futureResponse.throw(err);
-      }
-      else {
-        var uuid = UUID.v4();
-        var filePath = './tmp/' + uuid;
-        workbook.writeToFile(filePath);
+       worksheet.setColumnProperties([ // Example : setting the width of columns in the file
+          { wch: 20 },
+          { wch: 30 }
+       ]);
 
-        temporaryFiles.importFile(filePath, {
-          filename : uuid,
-          contentType: 'application/octet-stream'
-        }, function(err, file) {
-          if (err) {
-            futureResponse.throw(err);
-          }
-          else {
-            futureResponse.return('/gridfs/temporaryFiles/' + file._id);
-          }
+       // Example : writing multple rows to file
+       var row = 2;
+       Players.find({}).forEach(function(player) {
+          worksheet.writeToCell(row, 0, player.name);
+          worksheet.writeToCell(row, 1, player.score);
+
+          row++;
         });
-      }
-    }));
+    
+        workbook.addSheet('MySheet', worksheet); // Add the worksheet to the workbook
+    
+        mkdirp('tmp', Meteor.bindEnvironment(function (err) {
+           if (err) {
+              console.log('Error creating tmp dir', err);
+              futureResponse.throw(err);
+           } else {
+              var uuid = UUID.v4();
+              var filePath = './tmp/' + uuid;
+              workbook.writeToFile(filePath);
 
-    return futureResponse.wait();
-  }
+              temporaryFiles.importFile(filePath, {
+                 filename : uuid,
+                 contentType: 'application/octet-stream'
+              }, function(err, file) {
+                 if (err) {
+                    futureResponse.throw(err);
+                 } else {
+                    futureResponse.return('/gridfs/temporaryFiles/' + file._id);
+                 }
+              });
+           }
+        }));
+
+        return futureResponse.wait();
+    }
 
 
 

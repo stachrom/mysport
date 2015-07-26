@@ -21,10 +21,10 @@
           </div>
           <div class="form-group">
              <div class="input-group">
-                <select class="form-control" id="filterSelect">
-                   <option value="" > Wähle einen Filter </option>
-                   {{#each options}}
-                   <option value="{{this}}" {{selected this}}  > {{this}} </option>
+                <select class="form-control" id="filterTag">
+                   <option value="" > Wähle deine Sparte </option>
+                   {{#each tagOptions}}
+                   <option value="{{this}}" {{selectedTag this}}  > {{this}} </option>
                    {{/each}}
                 </select>       
                 <div class="input-group-addon">
@@ -32,6 +32,20 @@
                 </div>
              </div>
           </div>
+          <div class="form-group">
+             <div class="input-group">
+                <select class="form-control" id="filterLevel">
+                   <option value="" > Wähle dein Level </option>
+                   {{#each levelOptions}}
+                   <option value="{{this}}" {{selectedLevel this}}  > {{this}} </option>
+                   {{/each}}
+                </select>
+                <div class="input-group-addon">
+                   <i class="fa fa-filter"></i>
+                </div>
+             </div>
+          </div>
+
         </form>
     </section>
 </template>
@@ -43,6 +57,7 @@
             <th data-sort="Art" class="sort">Typ</th>
            
             <th data-sort="Standort" class="sort" >Ort</th>
+            <th data-sort="Standort" class="sort" >Wochetag</th>
             <th data-sort="Kursdaten.Start" class="sort" >von</th>
             <th data-sort="Kursdaten.Stop" class="sort" >bis</th>
         </tr>
@@ -57,8 +72,9 @@
             <td>{{Art}}</td>
           
             <td>{{Standort}}</td>
-            <td>{{dateFormat Kursdaten.Start format="DD.MMMM.YYYY"}}</td>
-            <td>{{dateFormat Kursdaten.Stop format="DD.MMMM.YYYY"}}</td>
+            <td>{{dateFormat Kursdaten.Start format="dddd"}}</td>
+            <td>{{dateFormat Kursdaten.Start format="DD.MM YYYY"}}</td>
+            <td>{{dateFormat Kursdaten.Stop format="DD.MM YYYY"}}</td>
         </tr>
       {{/each}}      
     </tbody>

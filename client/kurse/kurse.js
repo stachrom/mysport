@@ -3,18 +3,25 @@
 // Sessions
 Session.setDefault("kurs_table_sort", {Daten: 1} );
 Session.setDefault("kurs_id", null );
-Session.setDefault("filter", "" );
+Session.setDefault("filterTag", "" );
+Session.setDefault("filterLevel", "" );
 
 Template.filter.events({
 
-   'change #filterSelect':function(event, template){
+   'change #filterTag':function(event, template){
 
       var e = event.currentTarget;
       var value = e.options[e.selectedIndex].value;
-          Session.set("filter", value);
+          Session.set("filterTag", value);
 
    },
+   'change #filterLevel':function(event, template){
 
+      var e = event.currentTarget;
+      var value = e.options[e.selectedIndex].value;
+          Session.set("filterLevel", value);
+
+   },
    'keypress .search-query' : function (event, template) {
 
             var searchString =  template.find(".search-query").value + String.fromCharCode(event.which);
@@ -79,16 +86,22 @@ Template.tableheader.events({
 
 Template.filter.helpers({
 
-   options: function(){
-    return Session.get("kurseFilter");
+   tagOptions: function(){
+    return Session.get("kurseFilterTag");
    },
-   selected: function(value){
-    return Session.get("filter") == value? {selected:'selected'}: '';
+   levelOptions: function(){
+   // distinct auf Level array methoden aufruf
+    return Session.get("kurseFilterLevel");
+   },
+   selectedTag: function(value){
+    return Session.get("filterTag") == value? {selected:'selected'}: '';
    },
    searchString: function(){
     return Session.get("searchString");
+   },
+   selectedLevel: function(value){
+    return Session.get("filterLevel") == value? {selected:'selected'}: '';
    }
-
 
 
 })

@@ -86,23 +86,6 @@
 </template>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <template name="new_booking">
    <div class="list-group">
       <h2>New Bookings</h2>
@@ -122,7 +105,11 @@
                   <li>{{Beschreibung}} {{Anzahl}} x {{Value}}.- </li>
                {{/each}}
                </ul>
-               Kunde: <a href="#" class="link userid" >{{Username}}</a>
+               {{#if Username}}
+                  Kunde: <a href="#" class="link userid" >{{Username}}</a>
+               {{else}}
+                  <a href="#" class="link userid" >Social Account - there is no username jet</a>
+               {{/if}}
                <br>
             </p>
          </div>
